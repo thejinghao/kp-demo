@@ -2,14 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import KlarnaPlacement from '../../components/KlarnaPlacement';
 
-declare global {
-  interface Window {
-    KlarnaOnsiteService: any;
-    setPrice: (productIndex: number) => void;
-    setLocale: (locale: string) => void;
-  }
-}
+
 
 export default function OSMApp() {
   const [selectedPrice, setSelectedPrice] = useState(1);
@@ -165,10 +160,10 @@ export default function OSMApp() {
                   top-strip-promotion-badge
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="top-strip-promotion-badge" 
                     data-locale={selectedLocale}
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -176,10 +171,10 @@ export default function OSMApp() {
                   top-strip-promotion-auto-size
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="top-strip-promotion-auto-size" 
                     data-locale={selectedLocale}
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
             </div>
@@ -199,12 +194,12 @@ export default function OSMApp() {
                   credit-promotion-auto-size
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     id="klarna-pdp3" 
                     data-key="credit-promotion-auto-size" 
                     data-locale={selectedLocale} 
                     data-purchase-amount=""
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -212,13 +207,13 @@ export default function OSMApp() {
                   credit-promotion-auto-size (Dark)
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     id="klarna-pdp4" 
                     data-key="credit-promotion-auto-size" 
                     data-locale={selectedLocale} 
                     data-purchase-amount="" 
                     data-theme="dark"
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -226,12 +221,12 @@ export default function OSMApp() {
                   credit-promotion-badge
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     id="klarna-pdp5" 
                     data-key="credit-promotion-badge" 
                     data-locale={selectedLocale} 
                     data-purchase-amount=""
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
             </div>
@@ -251,10 +246,10 @@ export default function OSMApp() {
                   footer-promotion-auto-size
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="footer-promotion-auto-size" 
                     data-locale={selectedLocale}
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -262,11 +257,11 @@ export default function OSMApp() {
                   homepage-promotion-box
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="homepage-promotion-box" 
                     data-locale={selectedLocale} 
                     data-theme="dark"
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -274,10 +269,10 @@ export default function OSMApp() {
                   info-page
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="info-page" 
                     data-locale={selectedLocale}
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -285,10 +280,10 @@ export default function OSMApp() {
                   sidebar-promotion-auto-size
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="sidebar-promotion-auto-size" 
                     data-locale={selectedLocale}
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
             </div>
