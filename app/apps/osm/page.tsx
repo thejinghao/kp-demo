@@ -89,12 +89,6 @@ export default function OSMApp() {
         {/* Intro & Controls Section */}
         <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-8">
           <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              Klarna On-Site Messaging (OSM) Demo
-            </h2>
-            <p className="text-slate-600 dark:text-slate-300 mb-4">
-              US Playground MID N054291 | CA Playground MID N054292
-            </p>
             <p className="text-slate-600 dark:text-slate-300">
               Configure price and locale to test different Klarna messaging placements
             </p>
@@ -264,17 +258,7 @@ export default function OSMApp() {
                   />
                 </div>
               </div>
-              <div className="space-y-3">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
-                  info-page
-                </p>
-                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <KlarnaPlacement 
-                    data-key="info-page" 
-                    data-locale={selectedLocale}
-                  />
-                </div>
-              </div>
+
               <div className="space-y-3">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   sidebar-promotion-auto-size
@@ -286,6 +270,22 @@ export default function OSMApp() {
                   />
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* Info Page Section */}
+          <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              Info Page
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6 italic text-sm">
+              Full-width information page placement
+            </p>
+            <div className="w-full">
+              <KlarnaPlacement 
+                data-key="info-page" 
+                data-locale={selectedLocale}
+              />
             </div>
           </section>
         </main>
