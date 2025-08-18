@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+  <title>Klarna Messaging Demo</title>
+  
+  <!-- Link to external CSS file -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Klarna Web SDK -->
+  <script
+    async
+    data-environment="playground"
+    src="https://js.klarna.com/web-sdk/v1/klarna.js"
+    data-client-id="klarna_test_client_ZHh4PzVrciRtZWtQTzdSR2RXY0wyYnhQbHBuUjk1OCMsMjllYjEwZGYtOGE5OC00OGFmLWIwMjQtMGViMzFmNjhlNGQwLDEseDNIcWhEdlpZSmNOMXcrTVFPL1p1cXFod2djZEdrUTQ1N055UytJMHhkUT0"
+  ></script>
+
+  <script>
+    var dataLayer = [
+      { product: { price: 20, name: "Example product 1" } },
+      { product: { price: 100, name: "Example product 2" } },
+      { product: { price: 1500, name: "Example product 3" } }
+    ];
+
+    window.setPrice = function (productIndex) {
+      var klarnaPrice = dataLayer[productIndex].product.price * 100;
+      var nodes = document.querySelectorAll("[id^='klarna-pdp']");
+      nodes.forEach(function (node) {
+        node.dataset.purchaseAmount = klarnaPrice;
+      });
+      if (window.KlarnaOnsiteService) {
+        window.KlarnaOnsiteService.push({ eventName: "refresh-placements" });
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+      window.setPrice(1);
+      if (window.KlarnaOnsiteService) {
+        window.KlarnaOnsiteService.push({ eventName: "refresh-placements" });
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <header>
+    <h1>Klarna On-Site Messaging (OSM) Demo</h1>
+  </header>
+
+  <!-- Intro & Controls Section -->
+  <section id="intro-controls">
+    <div class="intro">
+      <p>Select a price:</p>
+    </div>
+    <div class="button-container">
+      <button onclick="window.setPrice(0)">$20.00</button>
+      <button onclick="window.setPrice(1)">$100.00</button>
+      <button onclick="window.setPrice(2)">$1,500.00</button>
+    </div>
+  </section>
+
+  <!-- Placements Sections -->
+  <main>
+    <!-- Top Strip Promotions Section -->
+    <section class="placement-section">
+      <h2>Top Strip Promotions</h2>
+      <div class="placement-container">
+        <div class="placement-wrapper full-width">
+          <p class="placement-label">top-strip-promotion-badge</p>
+          <klarna-placement data-key="top-strip-promotion-badge" data-locale="en-US"></klarna-placement>
+        </div>
+        <div class="placement-wrapper full-width">
+          <p class="placement-label">top-strip-promotion-auto-size</p>
+          <klarna-placement data-key="top-strip-promotion-auto-size" data-locale="en-US"></klarna-placement>
+        </div>
+      </div>
+    </section>
+
+    <!-- Credit Promotions Section -->
+    <section class="placement-section">
+      <h2>Credit Promotions</h2>
+      <div class="placement-container">
+        <div class="placement-wrapper">
+          <p class="placement-label">credit-promotion-auto-size</p>
+          <klarna-placement id="klarna-pdp3" data-key="credit-promotion-auto-size" data-locale="en-US" data-purchase-amount=""></klarna-placement>
+        </div>
+        <div class="placement-wrapper">
+          <p class="placement-label">credit-promotion-auto-size</p>
+          <klarna-placement id="klarna-pdp4" data-key="credit-promotion-auto-size" data-locale="en-US" data-purchase-amount="" data-theme="dark"></klarna-placement>
+        </div>
+        <div class="placement-wrapper">
+          <p class="placement-label">credit-promotion-badge</p>
+          <klarna-placement id="klarna-pdp5" data-key="credit-promotion-badge" data-locale="en-US" data-purchase-amount=""></klarna-placement>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer & Additional Placements Section -->
+    <section class="placement-section">
+      <h2>Footer & Additional Placements</h2>
+      <div class="placement-container">
+        <div class="placement-wrapper">
+          <p class="placement-label">footer-promotion-auto-size</p>
+          <klarna-placement data-key="footer-promotion-auto-size" data-locale="en-US"></klarna-placement>
+        </div>
+        <div class="placement-wrapper">
+          <p class="placement-label">homepage-promotion-box</p>
+          <klarna-placement data-key="homepage-promotion-box" data-locale="en-US" data-theme="dark"></klarna-placement>
+        </div>
+        <div class="placement-wrapper">
+          <p class="placement-label">info-page</p>
+          <klarna-placement data-key="info-page" data-locale="en-US"></klarna-placement>
+        </div>
+        <div class="placement-wrapper">
+          <p class="placement-label">sidebar-promotion-auto-size</p>
+          <klarna-placement data-key="sidebar-promotion-auto-size" data-locale="en-US"></klarna-placement>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Klarna Demo Page</p>
+  </footer>
+</body>
+</html>
+
+<!-- Jing Hao, jing.hao@klarna.com -->

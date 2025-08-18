@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# App Directory
 
-## Getting Started
+A collection of interactive demos and tools, built with modern web technologies.
 
-First, run the development server:
+## 🚀 Getting Started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app directory.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📱 Available Apps
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Klarna OSM Demo (`/apps/osm`)
+- **Description**: On-Site Messaging demonstration with various Klarna placements
+- **Features**: 
+  - Interactive price selection ($20, $100, $1,500)
+  - Multiple Klarna placement types
+  - Real-time messaging updates
+  - Dark/light theme support
+- **Tags**: Klarna, Messaging, Demo
 
-## Learn More
+## 🛠️ Adding New Apps
 
-To learn more about Next.js, take a look at the following resources:
+To add a new app to the directory:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Create the app directory**:
+   ```bash
+   mkdir -p app/apps/your-app-name
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Create the app page**:
+   ```bash
+   touch app/apps/your-app-name/page.tsx
+   ```
 
-## Deploy on Vercel
+3. **Add the app to the directory** in `app/page.tsx`:
+   ```typescript
+   const apps = [
+     // ... existing apps
+     {
+       id: "your-app-name",
+       name: "Your App Name",
+       description: "Description of your app",
+       icon: "🚀",
+       href: "/apps/your-app-name",
+       tags: ["Tag1", "Tag2"]
+     }
+   ];
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Build your app** using React components and Tailwind CSS
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎨 Design System
+
+This app uses a modern, minimalist design with:
+- **Colors**: Slate color palette with dark mode support
+- **Typography**: Geist font family
+- **Layout**: Responsive grid system with Tailwind CSS
+- **Components**: Card-based design with hover effects and smooth transitions
+
+## 🏗️ Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Styling**: Tailwind CSS v4
+- **Language**: TypeScript
+- **Deployment**: Vercel-ready
+
+## 📁 Project Structure
+
+```
+vercel-app/
+├── app/
+│   ├── apps/           # Individual app pages
+│   │   └── osm/        # Klarna OSM Demo
+│   ├── globals.css     # Global styles
+│   ├── layout.tsx      # Root layout
+│   └── page.tsx        # App directory homepage
+├── public/             # Static assets
+└── package.json        # Dependencies
+```
+
+## 🌟 Features
+
+- **Responsive Design**: Works on all device sizes
+- **Dark Mode**: Automatic theme switching
+- **Modern UI**: Clean, professional interface
+- **Easy Navigation**: Simple app discovery and navigation
+- **Scalable**: Easy to add new apps and features
+
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
