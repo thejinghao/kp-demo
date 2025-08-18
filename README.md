@@ -22,6 +22,26 @@ Open [http://localhost:3000](http://localhost:3000) to view the app directory.
   - Dark/light theme support
 - **Tags**: Klarna, Messaging, Demo
 
+### 2. Klarna Express Checkout (`/apps/kec`)
+- **Description**: Express checkout demo with authorize and finalize flows
+- **Features**: 
+  - Auto-finalize configuration options
+  - Multiple payload scenarios for testing
+  - Custom amount input support
+  - Real-time authorization results
+  - Copy-to-clipboard functionality
+- **Tags**: Klarna, Checkout, Payment
+
+### 3. Klarna Payment Demo (`/apps/kp`)
+- **Description**: Payment demo with client token initialization and order placement
+- **Features**: 
+  - Client token input and validation
+  - SDK initialization workflow
+  - Klarna widget loading
+  - Order placement simulation
+  - Response data display with copy functionality
+- **Tags**: Klarna, Payment, SDK
+
 ## 🛠️ Adding New Apps
 
 To add a new app to the directory:

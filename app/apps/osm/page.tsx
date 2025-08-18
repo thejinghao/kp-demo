@@ -2,22 +2,30 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import KlarnaPlacement from '../../components/KlarnaPlacement';
 
-declare global {
-  interface Window {
-    KlarnaOnsiteService: any;
-    setPrice: (productIndex: number) => void;
-  }
-}
+
 
 export default function OSMApp() {
   const [selectedPrice, setSelectedPrice] = useState(1);
+  const [selectedLocale, setSelectedLocale] = useState('en-US');
 
   const dataLayer = [
     { product: { price: 20, name: "Example product 1" } },
     { product: { price: 100, name: "Example product 2" } },
-    { product: { price: 1500, name: "Example product 3" } }
+    { product: { price: 1600, name: "Example product 3" } }
   ];
+
+  const setLocale = (locale: string) => {
+    setSelectedLocale(locale);
+    const placements = document.querySelectorAll("klarna-placement");
+    placements.forEach(function (placement: any) {
+      placement.dataset.locale = locale;
+    });
+    if (window.KlarnaOnsiteService) {
+      window.KlarnaOnsiteService.push({ eventName: "refresh-placements" });
+    }
+  };
 
   const setPrice = (productIndex: number) => {
     setSelectedPrice(productIndex);
@@ -32,8 +40,9 @@ export default function OSMApp() {
   };
 
   useEffect(() => {
-    // Set initial price
+    // Set initial price and locale
     setPrice(1);
+    setLocale('en-US');
     
     // Add script to head
     const script = document.createElement('script');
@@ -44,8 +53,9 @@ export default function OSMApp() {
     
     document.head.appendChild(script);
 
-    // Set global function
+    // Set global functions
     window.setPrice = setPrice;
+    window.setLocale = setLocale;
 
     return () => {
       // Cleanup
@@ -80,26 +90,57 @@ export default function OSMApp() {
         <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-8">
           <div className="text-center mb-6">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              Select a price to test different Klarna placements:
+              Klarna On-Site Messaging (OSM) Demo
             </h2>
+            <p className="text-slate-600 dark:text-slate-300 mb-4">
+              US Playground MID N054291 | CA Playground MID N054292
+            </p>
             <p className="text-slate-600 dark:text-slate-300">
-              Each price will update the Klarna messaging placements below
+              Configure price and locale to test different Klarna messaging placements
             </p>
           </div>
-          <div className="flex flex-wrap justify-center gap-4">
-            {dataLayer.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => setPrice(index)}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
-                  selectedPrice === index
-                    ? 'bg-blue-600 text-white shadow-lg scale-105'
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 hover:scale-102'
-                }`}
+          
+          {/* Controls Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            {/* Price Controls */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Price:
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {dataLayer.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setPrice(index)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
+                      selectedPrice === index
+                        ? 'bg-blue-600 text-white shadow-lg scale-105'
+                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 hover:scale-102'
+                    }`}
+                  >
+                    ${item.product.price.toLocaleString()}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Locale Controls */}
+            <div className="space-y-3">
+              <label htmlFor="locale-selector" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Locale:
+              </label>
+              <select
+                id="locale-selector"
+                value={selectedLocale}
+                onChange={(e) => setLocale(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                ${item.product.price.toLocaleString()}
-              </button>
-            ))}
+                <option value="en-US">en-US</option>
+                <option value="en-CA">en-CA</option>
+                <option value="fr-CA">fr-CA</option>
+                <option value="es-US">es-US</option>
+              </select>
+            </div>
           </div>
         </section>
 
@@ -107,19 +148,22 @@ export default function OSMApp() {
         <main className="space-y-8">
           {/* Top Strip Promotions Section */}
           <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
               Top Strip Promotions
             </h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6 italic text-sm">
+              For sitewide top banner placements
+            </p>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-3">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   top-strip-promotion-badge
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="top-strip-promotion-badge" 
-                    data-locale="en-US"
-                  ></klarna-placement>
+                    data-locale={selectedLocale}
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -127,10 +171,10 @@ export default function OSMApp() {
                   top-strip-promotion-auto-size
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="top-strip-promotion-auto-size" 
-                    data-locale="en-US"
-                  ></klarna-placement>
+                    data-locale={selectedLocale}
+                  />
                 </div>
               </div>
             </div>
@@ -138,21 +182,24 @@ export default function OSMApp() {
 
           {/* Credit Promotions Section */}
           <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
               Credit Promotions
             </h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6 italic text-sm">
+              For PDP, Cart, and locations where an amount is required
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-3">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   credit-promotion-auto-size
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     id="klarna-pdp3" 
                     data-key="credit-promotion-auto-size" 
-                    data-locale="en-US" 
+                    data-locale={selectedLocale} 
                     data-purchase-amount=""
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -160,13 +207,13 @@ export default function OSMApp() {
                   credit-promotion-auto-size (Dark)
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     id="klarna-pdp4" 
                     data-key="credit-promotion-auto-size" 
-                    data-locale="en-US" 
+                    data-locale={selectedLocale} 
                     data-purchase-amount="" 
                     data-theme="dark"
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -174,12 +221,12 @@ export default function OSMApp() {
                   credit-promotion-badge
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     id="klarna-pdp5" 
                     data-key="credit-promotion-badge" 
-                    data-locale="en-US" 
+                    data-locale={selectedLocale} 
                     data-purchase-amount=""
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
             </div>
@@ -187,19 +234,22 @@ export default function OSMApp() {
 
           {/* Footer & Additional Placements Section */}
           <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
               Footer & Additional Placements
             </h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6 italic text-sm">
+              Additional placement options for various page locations
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-3">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   footer-promotion-auto-size
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="footer-promotion-auto-size" 
-                    data-locale="en-US"
-                  ></klarna-placement>
+                    data-locale={selectedLocale}
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -207,11 +257,11 @@ export default function OSMApp() {
                   homepage-promotion-box
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="homepage-promotion-box" 
-                    data-locale="en-US" 
+                    data-locale={selectedLocale} 
                     data-theme="dark"
-                  ></klarna-placement>
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -219,10 +269,10 @@ export default function OSMApp() {
                   info-page
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="info-page" 
-                    data-locale="en-US"
-                  ></klarna-placement>
+                    data-locale={selectedLocale}
+                  />
                 </div>
               </div>
               <div className="space-y-3">
@@ -230,10 +280,10 @@ export default function OSMApp() {
                   sidebar-promotion-auto-size
                 </p>
                 <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
-                  <klarna-placement 
+                  <KlarnaPlacement 
                     data-key="sidebar-promotion-auto-size" 
-                    data-locale="en-US"
-                  ></klarna-placement>
+                    data-locale={selectedLocale}
+                  />
                 </div>
               </div>
             </div>

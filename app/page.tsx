@@ -10,6 +10,22 @@ export default function Home() {
       href: "/apps/osm",
       tags: ["Klarna", "Messaging", "Demo"]
     },
+    {
+      id: "kec",
+      name: "Klarna Express Checkout",
+      description: "Express checkout demo with authorize and finalize flows",
+      icon: "🛒",
+      href: "/apps/kec",
+      tags: ["Klarna", "Checkout", "Payment"]
+    },
+    {
+      id: "kp",
+      name: "Klarna Payment Demo",
+      description: "Payment demo with client token initialization and order placement",
+      icon: "💳",
+      href: "/apps/kp",
+      tags: ["Klarna", "Payment", "SDK"]
+    },
     // Add more apps here as you create them
   ];
 
