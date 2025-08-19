@@ -324,57 +324,61 @@ export default function KECApp() {
               </div>
             )}
 
-            {/* Payload Options */}
-            {showPayloadOptions && (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                  3. Review and Finalize Authorization <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">Front End + Back End</span>
-                </h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                  This section appears when finalize_required is true. Choose a payload to send to Payments.finalize() — keep the original amount, increase it (e.g., upgraded shipping), or enter a custom amount. Custom amounts are converted from dollars to cents. Click Place Order to call finalize and complete the authorization.
-                </p>
-                
-                <div className="space-y-4">
-                  {Object.entries(payloadOptions).map(([key, option]) => (
-                    <label key={key} className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="payload_option"
-                        value={key}
-                        checked={selectedPayloadOption === key}
-                        onChange={() => setSelectedPayloadOption(key)}
-                        className="mt-1 text-blue-600 focus:ring-blue-500"
-                      />
-                      <div className="flex-1">
-                        <span className="text-slate-700 dark:text-slate-300">
-                          {option.description}
-                        </span>
-                        {key === 'option3' && (
-                          <div className="mt-2">
-                            <input
-                              type="number"
-                              value={customAmount}
-                              onChange={(e) => setCustomAmount(e.target.value)}
-                              placeholder="Enter amount"
-                              min="0"
-                              step="0.01"
-                              className="w-32 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </label>
-                  ))}
-                </div>
-                
-                <button
-                  onClick={handleFinalize}
-                  className="mt-6 w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3 px-6 rounded-full font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-lg"
-                >
-                  Place Order // finalize()
-                </button>
+            {/* Payload Options - Always Visible */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                3. Review and Finalize Authorization <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">Front End + Back End</span>
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Use Payments.finalize() when finalize_required is true or when you need to adjust order totals. Select a payload option below and click Place Order to call finalize.
+              </p>
+
+              <div className="space-y-4">
+                {Object.entries(payloadOptions).map(([key, option]) => (
+                  <label
+                    key={key}
+                    className={`flex items-start gap-3 ${autoFinalize ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    <input
+                      type="radio"
+                      name="payload_option"
+                      value={key}
+                      checked={selectedPayloadOption === key}
+                      onChange={() => setSelectedPayloadOption(key)}
+                      disabled={autoFinalize}
+                      className="mt-1 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                    <div className="flex-1">
+                      <span className="text-slate-700 dark:text-slate-300">
+                        {option.description}
+                      </span>
+                      {key === 'option3' && (
+                        <div className="mt-2">
+                          <input
+                            type="number"
+                            value={customAmount}
+                            onChange={(e) => setCustomAmount(e.target.value)}
+                            placeholder="Enter amount"
+                            min="0"
+                            step="0.01"
+                            disabled={autoFinalize}
+                            className="w-32 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </label>
+                ))}
               </div>
-            )}
+
+              <button
+                onClick={handleFinalize}
+                disabled={autoFinalize}
+                className="mt-6 w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3 px-6 rounded-full font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Place Order
+              </button>
+            </div>
 
             {/* Results Table */}
             {(authorizeResults || finalizeResults) && (

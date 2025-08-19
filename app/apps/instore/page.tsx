@@ -165,10 +165,10 @@ export default function InStoreApp() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Step 0: Create In-Store Session */}
+          {/* Step 1: Create In-Store Session */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-              0. Create In-Store Session
+              1. Create In-Store Session <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800">Back End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
               Creates a Klarna Payments session with acquiring_channel set to in_store. The response contains a distribution result_url used in the next step.
@@ -221,9 +221,9 @@ export default function InStoreApp() {
             )}
           </div>
 
-          {/* Step 1: Retrieve QR code (POS/Kiosk style) */}
+          {/* Step 2: Retrieve QR code (POS/Kiosk style) */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">1. Retrieve QR code</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">2. Retrieve QR Code <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span></h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">Displays a QR code for the shopper to scan on their device.</p>
 
             {qrDataUrl ? (
@@ -255,9 +255,9 @@ export default function InStoreApp() {
             )}
           </div>
 
-          {/* Step 2: Monitor session status */}
+          {/* Step 3: Monitor Session Status */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">2. Monitor session status</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">3. Monitor Session Status <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">Front End + Back End</span></h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">Poll the distribution result_url for updates. When status changes, continue your order flow on the server.</p>
 
             <div className="flex gap-4 mb-4 items-center">
