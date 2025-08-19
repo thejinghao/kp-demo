@@ -4,27 +4,35 @@ export default function Home() {
   const apps = [
     {
       id: "osm",
-      name: "Klarna OSM Demo",
-      description: "On-Site Messaging demonstration with various Klarna placements",
+      name: "On-Site Messaging",
+      description: "OSM with various placements and locales",
       icon: "💳",
       href: "/apps/osm",
-      tags: ["Klarna", "Messaging", "Demo"]
+      tags: ["KP"]
     },
     {
       id: "kec",
       name: "Klarna Express Checkout",
-      description: "Express checkout demo with authorize and finalize flows",
+      description: "KEC with authorize and finalize flows",
       icon: "🛒",
       href: "/apps/kec",
-      tags: ["Klarna", "Checkout", "Payment"]
+      tags: ["KP"]
     },
     {
       id: "kp",
-      name: "Klarna Payment Demo",
-      description: "Payment demo with client token initialization and order placement",
+      name: "Klarna Payment",
+      description: "Klarna in a checkout flow",
       icon: "💳",
       href: "/apps/kp",
-      tags: ["Klarna", "Payment", "SDK"]
+      tags: ["KP"]
+    },
+    {
+      id: "instore",
+      name: "In-Store Payments",
+      description: "Create session and render QR for in-store",
+      icon: "🏬",
+      href: "/apps/instore",
+      tags: ["KP", "In-Store"]
     },
     // Add more apps here as you create them
   ];
@@ -35,10 +43,10 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-slate-900 dark:text-white mb-4">
-            App Directory
+            Klarna Playground
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            A collection of interactive demos and tools, built with modern web technologies
+            A collection of interactive demos and tools.
           </p>
         </div>
 
@@ -61,7 +69,7 @@ export default function Home() {
                   {app.description}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {app.tags.map((tag) => (
+                  {app.tags.map((tag: string) => (
                     <span
                       key={tag}
                       className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm rounded-full"
@@ -91,7 +99,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="text-center mt-16 pt-8 border-t border-slate-200 dark:border-slate-700">
           <p className="text-slate-500 dark:text-slate-400">
-            Built with Next.js & Tailwind CSS
+            <a href="mailto:jing.hao@klarna.com" className="hover:underline text-blue-600 dark:text-blue-400">jing.hao@klarna.com</a>
           </p>
         </footer>
       </div>
