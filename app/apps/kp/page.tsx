@@ -368,12 +368,7 @@ export default function KPPlaceOrderApp() {
           )}
         </div>
 
-        {/* Footer */}
-        <footer className="text-center mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
-          <p className="text-slate-500 dark:text-slate-400">
-            Klarna Payment Demo • Built with Next.js & Tailwind CSS
-          </p>
-        </footer>
+        
       </div>
     </div>
   );

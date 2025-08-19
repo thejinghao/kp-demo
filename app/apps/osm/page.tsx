@@ -9,6 +9,7 @@ import KlarnaPlacement from '../../components/KlarnaPlacement';
 export default function OSMApp() {
   const [selectedPrice, setSelectedPrice] = useState(1);
   const [selectedLocale, setSelectedLocale] = useState('en-US');
+  const [customAmount, setCustomAmount] = useState('');
 
   const dataLayer = [
     { product: { price: 20, name: "Example product 1" } },
@@ -30,6 +31,22 @@ export default function OSMApp() {
   const setPrice = (productIndex: number) => {
     setSelectedPrice(productIndex);
     const klarnaPrice = dataLayer[productIndex].product.price * 100;
+    const nodes = document.querySelectorAll("[id^='klarna-pdp']");
+    nodes.forEach(function (node: any) {
+      node.dataset.purchaseAmount = klarnaPrice;
+    });
+    if (window.KlarnaOnsiteService) {
+      window.KlarnaOnsiteService.push({ eventName: "refresh-placements" });
+    }
+  };
+
+  const applyCustomAmount = () => {
+    const numericAmount = parseFloat(customAmount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      return;
+    }
+    setSelectedPrice(-1);
+    const klarnaPrice = Math.round(numericAmount * 100);
     const nodes = document.querySelectorAll("[id^='klarna-pdp']");
     nodes.forEach(function (node: any) {
       node.dataset.purchaseAmount = klarnaPrice;
@@ -115,6 +132,28 @@ export default function OSMApp() {
                     ${item.product.price.toLocaleString()}
                   </button>
                 ))}
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-500">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { applyCustomAmount(); } }}
+                    placeholder="Enter custom amount"
+                    className="w-full pl-7 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <button
+                  onClick={applyCustomAmount}
+                  className="px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  Apply
+                </button>
               </div>
             </div>
             
@@ -290,12 +329,7 @@ export default function OSMApp() {
           </section>
         </main>
 
-        {/* Footer */}
-        <footer className="text-center mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
-          <p className="text-slate-500 dark:text-slate-400">
-            Klarna On-Site Messaging Demo • Built with Next.js & Tailwind CSS
-          </p>
-        </footer>
+        
       </div>
     </div>
   );

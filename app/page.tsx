@@ -6,31 +6,31 @@ export default function Home() {
       id: "osm",
       name: "On-Site Messaging",
       description: "OSM with various placements and locales",
-      icon: "💳",
+      icon: "✉️",
       href: "/apps/osm",
-      tags: ["KP"]
+      tags: ["KP","Ecomm"]
     },
     {
       id: "kec",
       name: "Klarna Express Checkout",
       description: "KEC with authorize and finalize flows",
-      icon: "🛒",
+      icon: "⚡",
       href: "/apps/kec",
-      tags: ["KP"]
+      tags: ["KP","Ecomm"]
     },
     {
       id: "kp",
       name: "Klarna Payment",
       description: "Klarna in a checkout flow",
-      icon: "💳",
+      icon: "🛒",
       href: "/apps/kp",
-      tags: ["KP"]
+      tags: ["KP","Ecomm"]
     },
     {
       id: "instore",
       name: "In-Store Payments",
       description: "Create session and render QR for in-store",
-      icon: "🏬",
+      icon: "🛍️",
       href: "/apps/instore",
       tags: ["KP", "In-Store"]
     },
@@ -96,12 +96,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* Footer */}
-        <footer className="text-center mt-16 pt-8 border-t border-slate-200 dark:border-slate-700">
-          <p className="text-slate-500 dark:text-slate-400">
-            <a href="mailto:jing.hao@klarna.com" className="hover:underline text-blue-600 dark:text-blue-400">jing.hao@klarna.com</a>
-          </p>
-        </footer>
+        
       </div>
     </div>
   );
