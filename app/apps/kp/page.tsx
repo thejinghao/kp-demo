@@ -166,13 +166,14 @@ export default function KPPlaceOrderApp() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Step 0: Create Session */}
+          {/* Step 1: Create Payments Session */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-              0. Create Session
+              1. Create Payments Session
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800">Back End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Call the Klarna Payments Create Session API with your order details. From the response, copy client_token. You will use client_token on the frontend to initialize the Klarna SDK and render the payment widget for the selected category.
+              Call the Klarna Payments Create Session API with your order details. From the response, store the client_token. You will use client_token on the frontend to initialize the Klarna SDK and render the payment widget.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -222,10 +223,11 @@ export default function KPPlaceOrderApp() {
             )}
           </div>
 
-          {/* Step 1: Client Token Input */}
+          {/* Step 2: Initialize SDK with Client Token */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-              1. Enter Client Token
+              2. Initialize SDK with Client Token
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Use the client_token from the session response and initialize the SDK via Payments.init(&#123; client_token &#125;). This binds your session to the current browser and prepares the widget for rendering.
@@ -257,10 +259,11 @@ export default function KPPlaceOrderApp() {
             </div>
           </div>
 
-          {/* Step 2: Klarna Widget & Payment */}
+          {/* Step 3: Render Klarna Widget & Authorize Payment */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-              2. Klarna Widget & Payment
+              3. Render Klarna Widget & Authorize Payment
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               After init, render the Klarna widget using Payments.load(&#123; container, payment_method_categories &#125;). When the shopper is ready, call Payments.authorize(...) to create an authorization. Use authorization_token from the response to proceed on your server.

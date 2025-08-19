@@ -179,7 +179,7 @@ export default function KlarnaHppDemo() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">0. Credentials</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">1. Configure API Credentials <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800">Back End</span></h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Enter your Klarna API Username and Password. These are used to construct a Basic Authorization header for server-to-server API calls. Do not expose credentials in client-side code in production.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
@@ -194,7 +194,7 @@ export default function KlarnaHppDemo() {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">1. Create Payments Session</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">2. Create Payments Session <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800">Back End</span></h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Create a Payments session with your order details. From the response, capture session_id (or session_url). You will pass this to the HPP API to create a hosted session that returns a redirect_url and optional qr_code_url for distribution.</p>
             <button onClick={createPaymentsSession} disabled={creatingPaymentsSession || !kpUsername.trim() || !kpPassword.trim()} className="px-6 py-3 bg-[var(--color-primary-black)] text-[var(--color-primary-white)] rounded-lg font-medium hover:opacity-90 focus:ring-2 focus:ring-[var(--color-secondary-eggplant)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               {creatingPaymentsSession ? 'Creating...' : 'Create Payments Session'}
@@ -206,7 +206,7 @@ export default function KlarnaHppDemo() {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">2. Create HPP Session</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">3. Create HPP Session <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800">Back End</span></h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Send the Payments session to the HPP create session endpoint (as payment_session_url). The response includes redirect_url, session_url, and possibly qr_code_url. Use redirect_url to open Klarna’s hosted flow in a popup or new tab; qr_code_url enables device handoff.</p>
             <button onClick={createHppSession} disabled={!paymentsSession?.session_id || creatingHppSession} className="px-6 py-3 bg-[var(--color-primary-black)] text-[var(--color-primary-white)] rounded-lg font-medium hover:opacity-90 focus:ring-2 focus:ring-[var(--color-secondary-eggplant)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               {creatingHppSession ? 'Creating...' : 'Create HPP Session'}
@@ -218,7 +218,7 @@ export default function KlarnaHppDemo() {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">3. Launch and Poll</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">4. Launch Checkout and Poll Status <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">Front End + Back End</span></h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Open the redirect_url (or scan the QR code) to start the checkout. Poll the HPP get-session endpoint using session_url (or hpp_session_id) until the session indicates it’s ready/approved. Once approved, continue your order flow on the server.</p>
             <div className="flex gap-6 flex-wrap items-center">
               {qrCodeUrl && (
