@@ -109,6 +109,9 @@ export default function OSMApp() {
             <p className="text-slate-600 dark:text-slate-300">
               Configure price and locale to test different Klarna messaging placements
             </p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+              Include the Klarna Web SDK script on the page. For each &lt;klarna-placement&gt;, set data-key, optional data-locale, and when required data-purchase-amount (in cents). When values change (price or locale), call window.KlarnaOnsiteService.push(&#123; eventName: 'refresh-placements' &#125;) to re-render.
+            </p>
           </div>
           
           {/* Controls Grid */}
@@ -184,6 +187,9 @@ export default function OSMApp() {
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
               Top Strip Promotions
             </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              Use promotional banner keys that don’t require amounts. Set data-locale to localize content. No data-purchase-amount is needed.
+            </p>
             <p className="text-slate-600 dark:text-slate-400 mb-6 italic text-sm">
               For sitewide top banner placements
             </p>
@@ -218,6 +224,9 @@ export default function OSMApp() {
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
               Credit Promotions
             </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              Provide data-purchase-amount in minor units (cents). Update this value when the product price changes or when a custom amount is entered, then trigger refresh-placements to reflect the new offer text.
+            </p>
             <p className="text-slate-600 dark:text-slate-400 mb-6 italic text-sm">
               For PDP, Cart, and locations where an amount is required
             </p>
@@ -270,6 +279,9 @@ export default function OSMApp() {
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
               Footer & Additional Placements
             </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              Demonstrates additional placement keys. You can change data-locale to switch language and add data-theme="dark" for dark styling where supported.
+            </p>
             <p className="text-slate-600 dark:text-slate-400 mb-6 italic text-sm">
               Additional placement options for various page locations
             </p>
@@ -317,6 +329,9 @@ export default function OSMApp() {
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
               Info Page
             </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              A full-width informational placement. Set data-locale as needed; no amount is required.
+            </p>
             <p className="text-slate-600 dark:text-slate-400 mb-6 italic text-sm">
               Full-width information page placement
             </p>

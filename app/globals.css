@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-secondary-eggplant) 90%, white 10%) 0%,
+    color-mix(in srgb, var(--color-secondary-balloon) 90%, black 10%) 100%
+  );
+  --foreground: #ededed;
 
   /* Brand palette */
   --color-primary-black: #0B051D;
@@ -31,7 +35,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-secondary-eggplant) 85%, white 15%) 0%,
+      color-mix(in srgb, var(--color-secondary-balloon) 80%, white 20%) 100%
+    );
     --foreground: #ededed;
   }
 }

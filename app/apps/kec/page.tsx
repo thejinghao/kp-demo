@@ -223,6 +223,9 @@ export default function KECApp() {
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                 Configuration
               </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Configure the options passed to Payments.authorize(). Set auto_finalize=true to complete the order in a single authorize step. Enable collect_shipping_address to have Klarna return the shopper’s address so you can calculate shipping and taxes. These flags influence whether finalize_required appears in the authorize response.
+              </p>
               
               <div className="space-y-4">
                 <div>
@@ -306,6 +309,9 @@ export default function KECApp() {
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                 Klarna Button
               </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Load the Klarna Buttons SDK and render a button into the container. Clicking the button calls Payments.authorize(options, orderPayload, callback). Klarna handles user authentication/consent and returns approved, finalize_required, and authorization_token in the callback.
+              </p>
               <div id="klarna-container" ref={containerRef}></div>
             </div>
 
@@ -324,6 +330,9 @@ export default function KECApp() {
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                   Review Your Order
                 </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  This section appears when finalize_required is true. Choose a payload to send to Payments.finalize() — keep the original amount, increase it (e.g., upgraded shipping), or enter a custom amount. Custom amounts are converted from dollars to cents. Click Place Order to call finalize and complete the authorization.
+                </p>
                 
                 <div className="space-y-4">
                   {Object.entries(payloadOptions).map(([key, option]) => (
@@ -373,6 +382,9 @@ export default function KECApp() {
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                   Results
                 </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Inspect raw fields from authorize()/finalize(). Copy authorization_token for your backend to create/capture the order. client_token is used to initialize client-side SDKs. collected_shipping_address appears when collect_shipping_address=true.
+                </p>
                 
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -420,6 +432,9 @@ export default function KECApp() {
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                 Order Payload Template
               </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                This is the baseline order object used in authorize() and finalize(). All monetary values are in minor units (cents). Adjust references, prices, and merchant URLs to match your system.
+              </p>
               <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
                 <pre className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
                   {JSON.stringify(orderPayloadTemplate, null, 2)}
@@ -433,6 +448,9 @@ export default function KECApp() {
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                   Authorize Payload
                 </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  This is the exact JSON sent to Payments.authorize(). On success, use approved/finalize_required and authorization_token to decide whether to call finalize or hand the token to your backend.
+                </p>
                 <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
                   <pre className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
                     {authorizePayload}
@@ -447,6 +465,9 @@ export default function KECApp() {
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                   Finalize Payload
                 </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  This is the JSON sent to Payments.finalize(). Use finalize when finalize_required is true or when updating order totals (shipping, tax). A successful finalize includes approved and authorization_token.
+                </p>
                 <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
                   <pre className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
                     {finalizePayload}

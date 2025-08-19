@@ -76,47 +76,7 @@ export default function KPPlaceOrderApp() {
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
-  const renderResponseTable = () => {
-    if (!responseData) return null;
-
-    return (
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-700">
-              <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Field</th>
-              <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Value</th>
-              <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-            {Object.entries(responseData).map(([key, value]) => (
-              <tr key={key}>
-                <td className="py-3 px-4 text-slate-700 dark:text-slate-300 font-medium">
-                  {key}
-                </td>
-                <td className="py-3 px-4 text-slate-900 dark:text-white font-mono text-sm break-all">
-                  {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
-                </td>
-                <td className="py-3 px-4">
-                  <button
-                    onClick={() => copyToClipboard(typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value))}
-                    className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-                  >
-                    Copy
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
+  
 
   useEffect(() => {
     // Load Klarna script
@@ -211,6 +171,9 @@ export default function KPPlaceOrderApp() {
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
               0. Create Session
             </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              Call the Klarna Payments Create Session API with your order details. From the response, copy client_token. You will use client_token on the frontend to initialize the Klarna SDK and render the payment widget for the selected category.
+            </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
@@ -264,24 +227,16 @@ export default function KPPlaceOrderApp() {
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
               1. Enter Client Token
             </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              Use the client_token from the session response and initialize the SDK via Payments.init(&#123; client_token &#125;). This binds your session to the current browser and prepares the widget for rendering.
+            </p>
             
             <div className="space-y-4">
               <div>
                 <label htmlFor="token-input" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Client Token
                 </label>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                  Retrieve your client token via the{' '}
-                  <a 
-                    href="https://docs.klarna.com/api/payments/#operation/createCreditSession" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    Create a Session
-                  </a>{' '}
-                  endpoint.
-                </p>
+
                 <textarea
                   id="token-input"
                   value={clientToken}
@@ -307,6 +262,9 @@ export default function KPPlaceOrderApp() {
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
               2. Klarna Widget & Payment
             </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              After init, render the Klarna widget using Payments.load(&#123; container, payment_method_categories &#125;). When the shopper is ready, call Payments.authorize(...) to create an authorization. Use authorization_token from the response to proceed on your server.
+            </p>
 
             {/* Payment selector */}
             <div className="space-y-3 mb-4">
@@ -362,8 +320,13 @@ export default function KPPlaceOrderApp() {
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                 Response
               </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Raw authorize() response from Klarna.
+              </p>
               
-              {renderResponseTable()}
+              <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
+                {responseData ? JSON.stringify(responseData, null, 2) : 'No response available.'}
+              </pre>
             </div>
           )}
         </div>

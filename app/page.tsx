@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   const apps = [
@@ -21,32 +22,48 @@ export default function Home() {
     {
       id: "kp",
       name: "Klarna Payment",
-      description: "Klarna in a checkout flow",
+      description: "Klarna Payment in a standard checkout flow",
       icon: "🛒",
       href: "/apps/kp",
       tags: ["KP","Ecomm"]
     },
     {
+      id: "hpp",
+      name: "Hosted Payment Page (HPP)",
+      description: "Distribute a Klarna-hosted payment page",
+      icon: "🧾",
+      href: "/apps/hpp",
+      tags: ["KP", "Ecomm"]
+    },
+    {
       id: "instore",
       name: "In-Store Payments",
-      description: "Create session and render QR for in-store",
+      description: "Create and distribute QR for in-store",
       icon: "🛍️",
       href: "/apps/instore",
       tags: ["KP", "In-Store"]
     },
+
     // Add more apps here as you create them
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-16">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-slate-900 dark:text-white mb-4">
-            Klarna Playground
-          </h1>
-          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            A collection of interactive demos and tools.
+          <div className="mb-4">
+            <Image
+              src="/klarna-badge.png"
+              alt="Klarna Playground"
+              width={169}
+              height={72}
+              priority
+              className="mx-auto h-auto w-[110px] md:w-[150px] lg:w-[170px]"
+            />
+          </div>
+          <p className="text-xl text-[var(--color-primary-offwhite)] max-w-2xl mx-auto">
+            A collection of demos and tools for integrating Klarna.
           </p>
         </div>
 
@@ -58,21 +75,21 @@ export default function Home() {
               href={app.href}
               className="group block"
             >
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-300 hover:-translate-y-1">
+              <div className="rounded-2xl p-6 border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl hover:bg-white/15 hover:border-white/30 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center mb-4">
                   <span className="text-3xl mr-3">{app.icon}</span>
-                  <h3 className="text-xl font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors">
                     {app.name}
                   </h3>
                 </div>
-                <p className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
+                <p className="text-slate-300 mb-4 leading-relaxed">
                   {app.description}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {app.tags.map((tag: string) => (
                     <span
                       key={tag}
-                      className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm rounded-full"
+                      className="px-3 py-1 bg-white/10 border border-white/20 text-slate-200 text-sm rounded-full"
                     >
                       {tag}
                     </span>
@@ -87,10 +104,10 @@ export default function Home() {
         {apps.length === 0 && (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🚀</div>
-            <h3 className="text-2xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            <h3 className="text-2xl font-semibold text-slate-200 mb-2">
               No apps yet
             </h3>
-            <p className="text-slate-500 dark:text-slate-400">
+            <p className="text-slate-400">
               Start building your first app to see it here
             </p>
           </div>
