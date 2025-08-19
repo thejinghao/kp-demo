@@ -12,6 +12,7 @@ declare global {
 
 export default function KECApp() {
   const [autoFinalize, setAutoFinalize] = useState(true);
+  const [collectShippingAddress, setCollectShippingAddress] = useState(false);
   const [showPayloadOptions, setShowPayloadOptions] = useState(false);
   const [showFinalizePayload, setShowFinalizePayload] = useState(false);
   const [customAmount, setCustomAmount] = useState('');
@@ -22,16 +23,20 @@ export default function KECApp() {
   const [finalizePayload, setFinalizePayload] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFinalized, setIsFinalized] = useState(false);
+  const [isKlarnaReady, setIsKlarnaReady] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
+  const isScriptLoadedRef = useRef(false);
+  const klarnaButtonsRef = useRef<any>(null);
+  const hasLoadedOnceRef = useRef(false); // retained if we later need to guard loads
 
   const orderPayloadTemplate = {
     "purchase_country": "US",
     "purchase_currency": "USD",
     "intent": "buy_and_default_tokenize",
     "locale": "en-US",
-    "merchant_reference1": "12142424",
-    "merchant_reference2": "phe2323",
+    "merchant_reference1": "EXTERNAL_FACING_ID_xxxxxxxx",
+    "merchant_reference2": "INTERNAL_FACING_ID_yyyyyyyy",
     "merchant_urls": {
       "authorization": "https://webhook.site/c292a862-2376-4944-aea7-25fcba1ebe7d",
       "confirmation": "https://example.com/confirmation"
@@ -87,7 +92,7 @@ export default function KECApp() {
     setAuthorizePayload(JSON.stringify(payload, null, 2));
     
     authorize({
-      collect_shipping_address: false,
+      collect_shipping_address: collectShippingAddress,
       auto_finalize: autoFinalize
     }, payload, (result: any) => {
       setAuthorizeResults(result);
@@ -128,34 +133,66 @@ export default function KECApp() {
     });
   };
 
+  // Helper to (re)load the Klarna button into the container
+  const loadKlarnaButton = () => {
+    if (!window.Klarna?.Payments?.Buttons) return;
+    if (!containerRef.current) return;
+
+    // Clear existing content to avoid duplicate buttons
+    containerRef.current.innerHTML = '';
+
+    // Initialize and load the button
+    klarnaButtonsRef.current = window.Klarna.Payments.Buttons.init({
+      client_key: "klarna_test_client_ZHh4PzVrciRtZWtQTzdSR2RXY0wyYnhQbHBuUjk1OCMsMjllYjEwZGYtOGE5OC00OGFmLWIwMjQtMGViMzFmNjhlNGQwLDEseDNIcWhEdlpZSmNOMXcrTVFPL1p1cXFod2djZEdrUTQ1N055UytJMHhkUT0",
+    });
+
+    klarnaButtonsRef.current.load({
+      container: "#klarna-container",
+      theme: "dark",
+      shape: "pill",
+      locale: "en-US",
+      on_click: handleAuthorize,
+    }, function(loadResult: any) {
+      console.log('loadResult', loadResult);
+    });
+  };
+
+  // Load Klarna script once (do not auto-load the button)
   useEffect(() => {
-    // Initialize Klarna
-    window.klarnaAsyncCallback = function() {
-      window.Klarna.Payments.Buttons.init({
-        client_key: "klarna_test_client_ZHh4PzVrciRtZWtQTzdSR2RXY0wyYnhQbHBuUjk1OCMsMjllYjEwZGYtOGE5OC00OGFmLWIwMjQtMGViMzFmNjhlNGQwLDEseDNIcWhEdlpZSmNOMXcrTVFPL1p1cXFod2djZEdrUTQ1N055UytJMHhkUT0",
-      }).load({
-        container: "#klarna-container",
-        theme: "dark",
-        shape: "pill",
-        locale: "en-US",
-        on_click: handleAuthorize,
-      }, function(loadResult: any) {
-        console.log('loadResult', loadResult);
-      });
-    };
+    // If script already loaded globally, just (re)load button
+    if ((window as any).Klarna?.Payments?.Buttons) {
+      isScriptLoadedRef.current = true;
+      setIsKlarnaReady(true);
+      return;
+    }
 
-    // Load Klarna script
-    const script = document.createElement('script');
-    script.src = 'https://x.klarnacdn.net/kp/lib/v1/api.js';
-    script.async = true;
-    document.head.appendChild(script);
+    // Assign async callback exactly once
+    if (!(window as any).klarnaAsyncCallback) {
+      (window as any).klarnaAsyncCallback = () => {
+        isScriptLoadedRef.current = true;
+        setIsKlarnaReady(true);
+      };
+    }
 
+    // Inject the Klarna script if not present
+    const existing = document.querySelector('script[src="https://x.klarnacdn.net/kp/lib/v1/api.js"]');
+    if (!existing) {
+      const script = document.createElement('script');
+      script.src = 'https://x.klarnacdn.net/kp/lib/v1/api.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    // Cleanup: clear container on unmount; do not remove the global script
     return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
       }
+      klarnaButtonsRef.current = null;
     };
-  }, [autoFinalize]);
+  }, []);
+
+  // Manual load trigger — do not auto-reload on state changes
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -220,11 +257,56 @@ export default function KECApp() {
                 
                 <div>
                   <h3 className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-3">
-                    Klarna Button:
+                    collect_shipping_address:
                   </h3>
-                  <div id="klarna-container" ref={containerRef}></div>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="collect_shipping_address"
+                        value="true"
+                        checked={collectShippingAddress === true}
+                        onChange={() => setCollectShippingAddress(true)}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-slate-700 dark:text-slate-300">True</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="collect_shipping_address"
+                        value="false"
+                        checked={collectShippingAddress === false}
+                        onChange={() => setCollectShippingAddress(false)}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-slate-700 dark:text-slate-300">False</span>
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={loadKlarnaButton}
+                      disabled={!isKlarnaReady}
+                      className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-2 px-4 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Load Klarna Button
+                    </button>
+                    {!isKlarnaReady && (
+                      <span className="text-sm text-slate-500 dark:text-slate-400">Loading Klarna SDK…</span>
+                    )}
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* Klarna Button Container (below Configuration) */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                Klarna Button
+              </h2>
+              <div id="klarna-container" ref={containerRef}></div>
             </div>
 
             {/* Success Message */}
