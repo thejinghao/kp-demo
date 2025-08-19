@@ -14,6 +14,8 @@ export default function InStoreApp() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [distributionStatus, setDistributionStatus] = useState<string | null>(null);
   const [distributionCall, setDistributionCall] = useState<{ request?: any; response?: any } | null>(null);
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
 
   const createInStoreSession = async () => {
     if (!kpUsername.trim() || !kpPassword.trim()) {
@@ -69,8 +71,9 @@ export default function InStoreApp() {
       const json = await res.json();
       setSessionCall({ request: json.forwarded_request, response: json.klarna_response });
 
-      const resultUrl: string | undefined = json?.klarna_response?.distribution?.result_url;
-      if (resultUrl) {
+      const createdResultUrl: string | undefined = json?.klarna_response?.distribution?.result_url;
+      if (createdResultUrl) {
+        setResultUrl(createdResultUrl);
         // Fetch the distribution result JSON first, then the QR image
         const qrRes = await fetch('/api/klarna/fetch-distribution', {
           method: 'POST',
@@ -78,10 +81,16 @@ export default function InStoreApp() {
             'Content-Type': 'application/json',
             authorization: `Basic ${kpUsername}:${kpPassword}`,
           },
-          body: JSON.stringify({ result_url: resultUrl }),
+          body: JSON.stringify({ result_url: createdResultUrl }),
         });
         const qrJson = await qrRes.json();
-        setDistributionCall({ request: qrJson.forwarded_request, response: qrJson.distribution });
+        const responsePayload = qrJson.distribution ?? {
+          data_url: qrJson.data_url,
+          content_type: qrJson.content_type,
+          status: qrJson.status,
+          payload: qrJson.payload,
+        };
+        setDistributionCall({ request: qrJson.forwarded_request, response: responsePayload });
         if (qrJson?.data_url) {
           setQrDataUrl(qrJson.data_url);
         }
@@ -94,6 +103,43 @@ export default function InStoreApp() {
       setSessionCall({ request: { error: 'request failed' }, response: err });
     } finally {
       setIsCreatingSession(false);
+    }
+  };
+
+  const pollDistribution = async () => {
+    if (!resultUrl) {
+      alert('No result_url available yet. Create a session first.');
+      return;
+    }
+
+    setIsPolling(true);
+    try {
+      const qrRes = await fetch('/api/klarna/fetch-distribution', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Basic ${kpUsername}:${kpPassword}`,
+        },
+        body: JSON.stringify({ result_url: resultUrl }),
+      });
+      const qrJson = await qrRes.json();
+      const responsePayload = qrJson.distribution ?? {
+        data_url: qrJson.data_url,
+        content_type: qrJson.content_type,
+        status: qrJson.status,
+        payload: qrJson.payload,
+      };
+      setDistributionCall({ request: qrJson.forwarded_request, response: responsePayload });
+      if (qrJson?.data_url) {
+        setQrDataUrl(qrJson.data_url);
+      }
+      if (qrJson?.distribution?.status) {
+        setDistributionStatus(qrJson.distribution.status);
+      }
+    } catch (err) {
+      console.error('Polling distribution failed', err);
+    } finally {
+      setIsPolling(false);
     }
   };
 
@@ -175,15 +221,64 @@ export default function InStoreApp() {
             )}
           </div>
 
-          {/* Step 1: Retrieve QR code */}
+          {/* Step 1: Retrieve QR code (POS/Kiosk style) */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">1. Retrieve QR code</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-              Calls the distribution result_url to get the session status and a qr URL, then fetches the QR image and renders it below.
-            </p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">Displays a QR code for the shopper to scan on their device.</p>
+
+            {qrDataUrl ? (
+              <div className="flex flex-col items-center justify-center">
+                <div className="relative w-full max-w-md">
+                  {/* Device bezel */}
+                  <div className="rounded-3xl border border-slate-300 dark:border-slate-600 bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 shadow-xl p-3">
+                    {/* Screen */}
+                    <div className="rounded-2xl bg-gradient-to-b from-slate-900 to-slate-800 ring-1 ring-black/10 shadow-inner p-6">
+                      <div className="text-center mb-4">
+                        <p className="text-slate-200 text-sm tracking-wide">Scan to pay with Klarna</p>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <div className="bg-white rounded-xl p-3 shadow-md">
+                          <img src={qrDataUrl} alt="Klarna In-Store QR" className="w-56 h-56 object-contain" />
+                        </div>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <p className="text-slate-400 text-xs">Open your camera or Klarna app to scan</p>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Device stand */}
+                  <div className="mx-auto h-2 w-40 rounded-full bg-slate-300/70 dark:bg-slate-600/70 mt-6" />
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 dark:text-slate-400">Create a session to generate a QR code.</p>
+            )}
+          </div>
+
+          {/* Step 2: Monitor session status */}
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">2. Monitor session status</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">Poll the distribution result_url for updates. When status changes, continue your order flow on the server.</p>
+
+            <div className="flex gap-4 mb-4 items-center">
+              <button
+                onClick={pollDistribution}
+                disabled={!resultUrl || !kpUsername.trim() || !kpPassword.trim() || isPolling}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isPolling ? 'Checking…' : 'Check Distribution Status'}
+              </button>
+              {resultUrl && (
+                <span className="text-xs text-slate-500 dark:text-slate-400 break-all">{resultUrl}</span>
+              )}
+            </div>
+
+            {distributionStatus && (
+              <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">Status: {distributionStatus}</p>
+            )}
 
             {distributionCall && (
-              <div className="space-y-4 mb-6">
+              <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">External Request (distribution)</h3>
                   <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
@@ -195,19 +290,6 @@ export default function InStoreApp() {
                   <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
                     {JSON.stringify(distributionCall.response, null, 2)}
                   </pre>
-                </div>
-              </div>
-            )}
-
-            {qrDataUrl && (
-              <div>
-                {distributionStatus && (
-                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">Status: {distributionStatus}</p>
-                )}
-                <div className="flex items-center justify-center">
-                  <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 bg-white">
-                    <img src={qrDataUrl} alt="Klarna In-Store QR" className="w-64 h-64 object-contain" />
-                  </div>
                 </div>
               </div>
             )}
