@@ -26,6 +26,14 @@ export default function Home() {
       href: "/apps/kp",
       tags: ["KP"]
     },
+    {
+      id: "instore",
+      name: "In-Store Payments",
+      description: "Create session and render QR for in-store",
+      icon: "🏬",
+      href: "/apps/instore",
+      tags: ["KP", "In-Store"]
+    },
     // Add more apps here as you create them
   ];
 
