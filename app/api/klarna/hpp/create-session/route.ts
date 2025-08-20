@@ -22,7 +22,11 @@ export async function POST(req: NextRequest) {
 		const outboundAuth = `Basic ${token}`;
 
 		const body = await req.json();
-		const { session_id: paymentsSessionId, session_url: providedSessionUrl } = body || {};
+		const { session_id: paymentsSessionId, session_url: providedSessionUrl, options } = body || {} as {
+			session_id?: string;
+			session_url?: string;
+			options?: { place_order_mode?: 'PLACE_ORDER' | 'CAPTURE_ORDER' | 'NONE' };
+		};
 
 		const baseUrl = process.env.KLARNA_API_BASE_URL || 'https://api.playground.klarna.com';
 		const hppUrl = `${baseUrl}/hpp/v1/sessions`;
@@ -36,8 +40,22 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'Missing session_id or session_url' }, { status: 400 });
 		}
 
-		// Keep the payload minimal: pass only payment_session_url (no merchant_urls or profile_id)
-		const outboundBody = { payment_session_url: paymentSessionUrl } as Record<string, unknown>;
+		// Include merchant_urls and optional options (e.g., place_order_mode)
+		const includeAuthorizationToken = options?.place_order_mode === 'NONE';
+		const baseSuccess = 'https://example.com/success?sid={{session_id}}';
+		const successUrl = includeAuthorizationToken
+			? `${baseSuccess}&authorization_token={{authorization_token}}`
+			: baseSuccess;
+
+		const outboundBody: Record<string, unknown> = {
+			payment_session_url: paymentSessionUrl,
+			merchant_urls: {
+				success: successUrl,
+			},
+		};
+		if (options && typeof options === 'object') {
+			outboundBody.options = options;
+		}
 
 		const res = await fetch(hppUrl, {
 			method: 'POST',

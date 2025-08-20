@@ -57,7 +57,7 @@ export default function KECApp() {
   const payloadOptions = {
     option1: {
       ...orderPayloadTemplate,
-      description: "Keep using the same payload sent with authorize (order_amount: $190.92)"
+      description: "No changes to payload"
     },
     option2: {
       ...orderPayloadTemplate,
@@ -67,20 +67,13 @@ export default function KECApp() {
         unit_price: 20000,
         total_amount: 20000
       }],
-      description: "Increase order_amount to $200.00 (e.g. update delivery option)"
+      description: "Change order_amount to $200.00"
     },
     option3: {
       ...orderPayloadTemplate,
-      description: "Custom Amount",
+      description: "Change order_amount to:",
       isCustom: true
     },
-    option6: {
-      ...orderPayloadTemplate,
-      purchase_country: "CA",
-      purchase_currency: "CAD",
-      locale: "es-CA",
-      description: "Change purchase_country and purchase_currency (From US-USD to CA-CAD) (Not supported)"
-    }
   };
 
   const copyToClipboard = (text: string) => {

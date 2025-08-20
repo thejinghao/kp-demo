@@ -18,12 +18,15 @@ export default function KPPlaceOrderApp() {
   const [responseData, setResponseData] = useState<any>(null);
   const [showResponse, setShowResponse] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [authorizationToken, setAuthorizationToken] = useState('');
 
   // New state for Create Session step
   const [kpUsername, setKpUsername] = useState(defaultUsername);
   const [kpPassword, setKpPassword] = useState(defaultPassword);
   const [sessionCall, setSessionCall] = useState<{ request?: any; response?: any } | null>(null);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
+  const [createOrderCall, setCreateOrderCall] = useState<{ request?: any; response?: any } | null>(null);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
   // Payment selector state
   const [selectedPayment, setSelectedPayment] = useState<'klarna' | 'card'>('klarna');
@@ -60,13 +63,37 @@ export default function KPPlaceOrderApp() {
 
     setIsLoading(true);
     try {
+      const authorizePayload = {
+        purchase_country: 'US',
+        purchase_currency: 'USD',
+        locale: 'en-US',
+        order_amount: 25900,
+        order_tax_amount: 0,
+        order_lines: [
+          {
+            type: 'physical',
+            reference: 'SKU-123',
+            name: 'T-Shirt',
+            quantity: 1,
+            quantity_unit: 'pcs',
+            unit_price: 25900,
+            tax_rate: 0,
+            total_amount: 25900,
+            total_tax_amount: 0
+          }
+        ]
+      };
+
       window.Klarna.Payments.authorize({
         instance_id: 'klarna-container-instance',
         payment_method_categories: ['klarna']
-      }, (res: any) => {
+      }, authorizePayload, (res: any) => {
         console.debug('Order authorized:', res);
         setResponseData(res);
         setShowResponse(true);
+        if (res && typeof res.authorization_token === 'string') {
+          setAuthorizationToken(res.authorization_token);
+        }
         setIsLoading(false);
       });
     } catch (error) {
@@ -141,6 +168,59 @@ export default function KPPlaceOrderApp() {
       setSessionCall({ request: { error: 'request failed' }, response: err });
     } finally {
       setIsCreatingSession(false);
+    }
+  };
+
+  const createOrder = async () => {
+    if (!authorizationToken) {
+      alert('No authorization token. Authorize first.');
+      return;
+    }
+    if (!kpUsername.trim() || !kpPassword.trim()) {
+      alert('Enter API Username and Password first.');
+      return;
+    }
+
+    // Use the SAME payload that was sent to authorize() above
+    const orderPayload = {
+      purchase_country: 'US',
+      purchase_currency: 'USD',
+      locale: 'en-US',
+      order_amount: 25900,
+      order_tax_amount: 0,
+      order_lines: [
+        {
+          type: 'physical',
+          reference: 'SKU-123',
+          name: 'T-Shirt',
+          quantity: 1,
+          quantity_unit: 'pcs',
+          unit_price: 25900,
+          tax_rate: 0,
+          total_amount: 25900,
+          total_tax_amount: 0
+        }
+      ]
+    };
+
+    setIsCreatingOrder(true);
+    try {
+      const res = await fetch(`/api/klarna/create-order/${encodeURIComponent(authorizationToken)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Basic ${kpUsername}:${kpPassword}`,
+        },
+        body: JSON.stringify(orderPayload),
+      });
+
+      const json = await res.json();
+      setCreateOrderCall({ request: json.forwarded_request, response: json.klarna_response });
+    } catch (err) {
+      console.error('Create order failed', err);
+      setCreateOrderCall({ request: { error: 'request failed' }, response: err });
+    } finally {
+      setIsCreatingOrder(false);
     }
   };
 
@@ -266,7 +346,7 @@ export default function KPPlaceOrderApp() {
               <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              After init, render the Klarna widget using Payments.load(&#123; container, payment_method_categories &#125;). When the shopper is ready, call Payments.authorize(...) to create an authorization. Use authorization_token from the response to proceed on your server.
+              After init, render the Klarna widget using Payments.load(&#123; container, payment_method_categories &#125;). When the shopper is ready, call Payments.authorize(options, <strong>payload</strong>, callback) to create an authorization. Use the returned authorization_token in the next step to create the order on your server.
             </p>
 
             {/* Payment selector */}
@@ -315,23 +395,67 @@ export default function KPPlaceOrderApp() {
                 )}
               </div>
             </div>
+            {showResponse && (
+              <div className="mt-4">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Authorize Response</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                  Raw authorize() response from Klarna.
+                </p>
+                <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
+                  {responseData ? JSON.stringify(responseData, null, 2) : 'No response available.'}
+                </pre>
+              </div>
+            )}
           </div>
 
-          {/* Response Container */}
-          {showResponse && (
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                Response
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                Raw authorize() response from Klarna.
-              </p>
-              
-              <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
-                {responseData ? JSON.stringify(responseData, null, 2) : 'No response available.'}
-              </pre>
+          {/* Step 4: Create Order (Back End) */}
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              4. Create Order
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800">Back End</span>
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              Use the authorization_token returned from authorize() as the path parameter and send the same payload used in authorize(). This finalizes the purchase and creates the order in Klarna.
+            </p>
+
+            <div className="flex items-end gap-4 mb-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Authorization Token</label>
+                <input
+                  value={authorizationToken}
+                  onChange={(e) => setAuthorizationToken(e.target.value)}
+                  placeholder="Will be auto-filled after authorize()"
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                />
+              </div>
+              <button
+                onClick={createOrder}
+                disabled={isCreatingOrder || !authorizationToken || !kpUsername.trim() || !kpPassword.trim()}
+                className="px-6 py-3 bg-[var(--color-primary-black)] text-[var(--color-primary-white)] rounded-lg font-medium hover:opacity-90 focus:ring-2 focus:ring-[var(--color-secondary-eggplant)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isCreatingOrder ? 'Creating...' : 'Create Order'}
+              </button>
             </div>
-          )}
+
+            {createOrderCall && (
+              <div className="mt-4 space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">External Request</h3>
+                  <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
+                    {JSON.stringify(createOrderCall.request, null, 2)}
+                  </pre>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">External Response</h3>
+                  <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
+                    {JSON.stringify(createOrderCall.response, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            )}
+          </div>
+
+          
         </div>
 
         
