@@ -49,3 +49,67 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Global button style */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(11, 5, 29);
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  font-family: Roboto, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 105%;
+  letter-spacing: -0.003rem;
+  overflow-wrap: break-word;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease, opacity 150ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+  opacity: 0.95;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Global badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.5rem; /* py-0.5 px-2 */
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0;
+  white-space: nowrap;
+  position: relative;
+  top: -1px; /* slight visual alignment tweak */
+}
+
+.badge-fe {
+  background-color: var(--color-secondary-balloon);
+  color: var(--color-primary-black);
+}
+
+.badge-be {
+  background-color: var(--color-secondary-sticky);
+  color: var(--color-primary-black);
+}

@@ -248,9 +248,9 @@ export default function KPPlaceOrderApp() {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Step 1: Create Payments Session */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-              1. Create Payments Session
-              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800">Back End</span>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+              <span>1. Create Payments Session</span>
+              <span className="badge badge-be">Back End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Call the Klarna Payments Create Session API with your order details. From the response, store the client_token. You will use client_token on the frontend to initialize the Klarna SDK and render the payment widget.
@@ -280,7 +280,7 @@ export default function KPPlaceOrderApp() {
             <button
               onClick={createSession}
               disabled={isCreatingSession || !kpUsername.trim() || !kpPassword.trim()}
-              className="px-6 py-3 bg-[var(--color-primary-black)] text-[var(--color-primary-white)] rounded-lg font-medium hover:opacity-90 focus:ring-2 focus:ring-[var(--color-secondary-eggplant)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="btn"
             >
               {isCreatingSession ? 'Creating...' : 'Create Session'}
             </button>
@@ -305,9 +305,9 @@ export default function KPPlaceOrderApp() {
 
           {/* Step 2: Initialize SDK with Client Token */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-              2. Initialize SDK with Client Token
-              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+              <span>2. Initialize SDK with Client Token</span>
+              <span className="badge badge-fe">Front End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Use the client_token from the session response and initialize the SDK via Payments.init(&#123; client_token &#125;). This binds your session to the current browser and prepares the widget for rendering.
@@ -332,7 +332,7 @@ export default function KPPlaceOrderApp() {
               <button
                 onClick={initializeSDK}
                 disabled={!clientToken.trim()}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="btn"
               >
                 Initialize SDK with Client Token
               </button>
@@ -341,9 +341,9 @@ export default function KPPlaceOrderApp() {
 
           {/* Step 3: Render Klarna Widget & Authorize Payment */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-              3. Render Klarna Widget & Authorize Payment
-              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+              <span>3. Render Klarna Widget & Authorize Payment</span>
+              <span className="badge badge-fe">Front End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               After init, render the Klarna widget using Payments.load(&#123; container, payment_method_categories &#125;). When the shopper is ready, call Payments.authorize(options, <strong>payload</strong>, callback) to create an authorization. Use the returned authorization_token in the next step to create the order on your server.
@@ -378,7 +378,7 @@ export default function KPPlaceOrderApp() {
                         <button
                           onClick={placeOrder}
                           disabled={isLoading}
-                          className="px-6 py-3 bg-[var(--color-primary-black)] text-[var(--color-primary-white)] rounded-lg font-medium border border-[var(--color-primary-black)] hover:bg-[var(--color-primary-offwhite)] hover:text-[var(--color-primary-black)] focus:ring-2 focus:ring-[var(--color-secondary-eggplant)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="btn"
                         >
                           {isLoading ? (
                             'Processing...'
@@ -410,9 +410,9 @@ export default function KPPlaceOrderApp() {
 
           {/* Step 4: Create Order (Back End) */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              4. Create Order
-              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800">Back End</span>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2 flex items-center justify-between gap-2">
+              <span>4. Create Order</span>
+              <span className="badge badge-be">Back End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Use the authorization_token returned from authorize() as the path parameter and send the same payload used in authorize(). This finalizes the purchase and creates the order in Klarna.
@@ -431,7 +431,7 @@ export default function KPPlaceOrderApp() {
               <button
                 onClick={createOrder}
                 disabled={isCreatingOrder || !authorizationToken || !kpUsername.trim() || !kpPassword.trim()}
-                className="px-6 py-3 bg-[var(--color-primary-black)] text-[var(--color-primary-white)] rounded-lg font-medium hover:opacity-90 focus:ring-2 focus:ring-[var(--color-secondary-eggplant)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="btn"
               >
                 {isCreatingOrder ? 'Creating...' : 'Create Order'}
               </button>
