@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import Link from 'next/link';
 
 declare global {
@@ -24,35 +24,55 @@ export default function KECApp() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFinalized, setIsFinalized] = useState(false);
   const [isKlarnaReady, setIsKlarnaReady] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState('');
   
   const containerRef = useRef<HTMLDivElement>(null);
   const isScriptLoadedRef = useRef(false);
   const klarnaButtonsRef = useRef<any>(null);
   const hasLoadedOnceRef = useRef(false); // retained if we later need to guard loads
 
-  const orderPayloadTemplate = {
-    "purchase_country": "US",
-    "purchase_currency": "USD",
-    "intent": "buy_and_default_tokenize",
-    "locale": "en-US",
-    "merchant_reference1": "EXTERNAL_FACING_ID_xxxxxxxx",
-    "merchant_reference2": "INTERNAL_FACING_ID_yyyyyyyy",
-    "merchant_urls": {
-      "authorization": "https://webhook.site/c292a862-2376-4944-aea7-25fcba1ebe7d",
-      "confirmation": "https://example.com/confirmation"
-    },
-    "order_amount": 19092,
-    "order_lines": [{
-      "product_url": "https://example.com/product",
-      "image_url": "https://example.com/image.jpg",
-      "type": "physical",
-      "reference": "PROD-001",
-      "name": "Sample Product",
-      "quantity": 1,
-      "unit_price": 19092,
-      "total_amount": 19092
-    }]
+  const appendSidParam = (urlString: string): string => {
+    try {
+      const u = new URL(urlString);
+      u.searchParams.set('sid', '{{session.id}}');
+      return u.toString();
+    } catch {
+      return urlString + (urlString.includes('?') ? '&' : '?') + 'sid={{session.id}}';
+    }
   };
+
+  const orderPayloadTemplate = useMemo(() => {
+    const defaultAuth = 'https://example.com/authorization';
+    const defaultConfirm = 'https://example.com/confirmation';
+    const target = webhookUrl && webhookUrl.trim() ? appendSidParam(webhookUrl.trim()) : '';
+
+    return {
+      purchase_country: 'US',
+      purchase_currency: 'USD',
+      intent: 'buy_and_default_tokenize',
+      locale: 'en-US',
+      merchant_reference1: 'EXTERNAL_FACING_ID_xxxxxxxx',
+      merchant_reference2: 'INTERNAL_FACING_ID_yyyyyyyy',
+      merchant_urls: {
+        authorization: target || defaultAuth,
+        confirmation: target || defaultConfirm,
+        notification: target || undefined,
+      },
+      order_amount: 19092,
+      order_lines: [
+        {
+          product_url: 'https://example.com/product',
+          image_url: 'https://example.com/image.jpg',
+          type: 'physical',
+          reference: 'PROD-001',
+          name: 'Sample Product',
+          quantity: 1,
+          unit_price: 19092,
+          total_amount: 19092,
+        },
+      ],
+    } as const;
+  }, [webhookUrl]);
 
   const payloadOptions = {
     option1: {
@@ -81,7 +101,13 @@ export default function KECApp() {
   };
 
   const handleAuthorize = (authorize: any) => {
-    const payload = { ...orderPayloadTemplate };
+    const payload = { ...orderPayloadTemplate } as any;
+    // Ensure notification is omitted if webhookUrl empty
+    if (!webhookUrl.trim()) {
+      if (payload.merchant_urls && payload.merchant_urls.notification === undefined) {
+        // nothing to do
+      }
+    }
     setAuthorizePayload(JSON.stringify(payload, null, 2));
     
     authorize({
@@ -219,6 +245,19 @@ export default function KECApp() {
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
                 Configure the options passed to Payments.authorize(). Set auto_finalize=true to complete the order in a single authorize step. Enable collect_shipping_address to have Klarna return the shopper’s address so you can calculate shipping and taxes. These flags influence whether finalize_required appears in the authorize response.
               </p>
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Webhook URL for merchant_urls (optional)</label>
+                  <a href="https://webhook.site/" target="_blank" rel="noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">Get a Webhook URL</a>
+                </div>
+                <input
+                  value={webhookUrl}
+                  onChange={(e) => setWebhookUrl(e.target.value)}
+                  placeholder="https://webhook.site/210e33b6-4836-4041-8a7b-f7c900f01cf0"
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                />
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Will be used for merchant_urls.authorization, confirmation, and notification. We append <code>{'sid={{session.id}}'}</code> to help correlate sessions.</p>
+              </div>
               
               <div className="space-y-4">
                 <div>
