@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
 			payment_session_url: paymentSessionUrl,
 			merchant_urls: {
 				success: successUrl,
+				// include status_update only if provided by the client
+				...(body?.merchant_urls?.status_update ? { status_update: String(body.merchant_urls.status_update) } : {}),
 			},
 		};
 		if (options && typeof options === 'object') {

@@ -20,6 +20,7 @@ export default function KlarnaHppDemo() {
   const [hppSession, setHppSession] = useState<any | null>(null);
   const [hppForwarded, setHppForwarded] = useState<Forwarded | null>(null);
   const [placeOrderMode, setPlaceOrderMode] = useState<'PLACE_ORDER' | 'CAPTURE_ORDER' | 'NONE'>('PLACE_ORDER');
+  const [statusUpdateUrl, setStatusUpdateUrl] = useState<string>('');
 
   const [hppStatus, setHppStatus] = useState<any | null>(null);
   const [hppStatusForwarded, setHppStatusForwarded] = useState<Forwarded | null>(null);
@@ -86,16 +87,21 @@ export default function KlarnaHppDemo() {
 
     setCreatingHppSession(true);
     try {
+      const payload: any = {
+        session_id: paymentsSession.session_id,
+        options: { place_order_mode: placeOrderMode },
+      };
+      if (statusUpdateUrl && statusUpdateUrl.trim()) {
+        payload.merchant_urls = { status_update: statusUpdateUrl.trim() };
+      }
+
       const res = await fetch('/api/klarna/hpp/create-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           authorization: authHeader,
         },
-        body: JSON.stringify({
-          session_id: paymentsSession.session_id,
-          options: { place_order_mode: placeOrderMode },
-        }),
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
       setHppForwarded(json.forwarded_request);
@@ -225,6 +231,19 @@ export default function KlarnaHppDemo() {
                 <option value="CAPTURE_ORDER">CAPTURE_ORDER</option>
                 <option value="NONE">NONE</option>
               </select>
+            </div>
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">status_update webhook URL (optional)</label>
+                <a href="https://webhook.site/" target="_blank" rel="noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">Get a Webhook URL</a>
+              </div>
+              <input
+                value={statusUpdateUrl}
+                onChange={(e) => setStatusUpdateUrl(e.target.value)}
+                placeholder="https://webhook.site/210e33b6-4836-4041-8a7b-f7c900f01cf0"
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              />
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">If provided, HPP will send status webhooks to this URL as the session progresses.</p>
             </div>
             <button onClick={createHppSession} disabled={!paymentsSession?.session_id || creatingHppSession} className="px-6 py-3 bg-[var(--color-primary-black)] text-[var(--color-primary-white)] rounded-lg font-medium hover:opacity-90 focus:ring-2 focus:ring-[var(--color-secondary-eggplant)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               {creatingHppSession ? 'Creating...' : 'Create HPP Session'}
