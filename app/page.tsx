@@ -8,7 +8,7 @@ export default function Home() {
       name: "On-Site Messaging",
       description: "OSM via SDK, with placements and locales",
       icon: "✉️",
-      href: "/apps/osm",
+      href: "/apps/osm/vertical",
       tags: ["KP","Ecomm"]
     },
     {
