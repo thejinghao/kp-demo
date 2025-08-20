@@ -9,7 +9,7 @@ function isProbablyBase64(input: string): boolean {
 
 export async function POST(
   req: NextRequest,
-  context: { params: { authorizationToken: string } }
+  context: { params: Promise<Record<string, string | string[]>> }
 ) {
   try {
     const auth = req.headers.get('authorization');
@@ -24,7 +24,9 @@ export async function POST(
     }
     const outboundAuth = `Basic ${token}`;
 
-    const { authorizationToken } = context.params || {};
+    const params = await context.params;
+    const rawToken = params?.authorizationToken;
+    const authorizationToken = Array.isArray(rawToken) ? rawToken[0] : rawToken;
     if (!authorizationToken || typeof authorizationToken !== 'string') {
       return NextResponse.json({ error: 'Missing authorization token in path' }, { status: 400 });
     }
