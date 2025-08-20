@@ -278,7 +278,7 @@ export default function OSMApp() {
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   footer-promotion-auto-size
                 </p>
-                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
+                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700 min-w-[125%]">
                   <KlarnaPlacement 
                     data-key="footer-promotion-auto-size" 
                     data-locale={selectedLocale}
@@ -289,7 +289,7 @@ export default function OSMApp() {
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   homepage-promotion-box
                 </p>
-                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
+                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700 min-w-[125%]">
                   <KlarnaPlacement 
                     data-key="homepage-promotion-box" 
                     data-locale={selectedLocale} 
