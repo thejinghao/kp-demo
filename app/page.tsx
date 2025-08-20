@@ -43,6 +43,14 @@ export default function Home() {
       href: "/apps/instore",
       tags: ["KP", "In-Store"]
     },
+    {
+      id: "ct",
+      name: "Tokenized Payment",
+      description: "Create order with a saved customer token",
+      icon: "🔑",
+      href: "/apps/ct",
+      tags: ["KP","Ecomm"]
+    },
 
     // Add more apps here as you create them
   ];

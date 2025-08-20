@@ -153,7 +153,7 @@ export default function OSMApp() {
                 </div>
                 <button
                   onClick={applyCustomAmount}
-                  className="px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm bg-blue-600 text-white hover:bg-blue-700"
+                  className="btn"
                 >
                   Apply
                 </button>
@@ -273,12 +273,12 @@ export default function OSMApp() {
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
               Footer & Additional Placements
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-3">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   footer-promotion-auto-size
                 </p>
-                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700 min-w-[125%]">
+                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700 w-full">
                   <KlarnaPlacement 
                     data-key="footer-promotion-auto-size" 
                     data-locale={selectedLocale}
@@ -289,7 +289,7 @@ export default function OSMApp() {
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   homepage-promotion-box
                 </p>
-                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700 min-w-[125%]">
+                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700 w-full">
                   <KlarnaPlacement 
                     data-key="homepage-promotion-box" 
                     data-locale={selectedLocale} 
@@ -302,7 +302,7 @@ export default function OSMApp() {
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   sidebar-promotion-auto-size
                 </p>
-                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700">
+                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700 w-full">
                   <KlarnaPlacement 
                     data-key="sidebar-promotion-auto-size" 
                     data-locale={selectedLocale}

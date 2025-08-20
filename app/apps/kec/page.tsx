@@ -239,8 +239,9 @@ export default function KECApp() {
           <div className="space-y-6">
             {/* Configuration Section */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                1. Configure Authorize Options <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+                <span>1. Configure Authorize Options</span>
+                <span className="badge badge-fe">Front End</span>
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
                 Configure the options passed to Payments.authorize(). Set auto_finalize=true to complete the order in a single authorize step. Enable collect_shipping_address to have Klarna return the shopper’s address so you can calculate shipping and taxes. These flags influence whether finalize_required appears in the authorize response.
@@ -324,7 +325,7 @@ export default function KECApp() {
                     <button
                       onClick={loadKlarnaButton}
                       disabled={!isKlarnaReady}
-                      className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-2 px-4 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn"
                     >
                       Load Klarna Button
                     </button>
@@ -338,8 +339,9 @@ export default function KECApp() {
 
             {/* Klarna Button Container (below Configuration) */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                2. Load Klarna Button and Authorize <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+                <span>2. Load Klarna Button and Authorize</span>
+                <span className="badge badge-fe">Front End</span>
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
                 Load the Klarna Buttons SDK and render a button into the container. Clicking the button calls Payments.authorize(options, orderPayload, callback). Klarna handles user authentication/consent and returns approved, finalize_required, and authorization_token in the callback.
@@ -358,8 +360,12 @@ export default function KECApp() {
 
             {/* Payload Options - Always Visible */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                3. Review and Finalize Authorization <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">Front End + Back End</span>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+                <span>3. Review and Finalize Authorization</span>
+                <span>
+                  <span className="badge badge-fe mr-1">Front End</span>
+                  <span className="badge badge-be">Back End</span>
+                </span>
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
                 Use Payments.finalize() when finalize_required is true or when you need to adjust order totals. Select a payload option below and click Place Order to call finalize.
@@ -406,7 +412,7 @@ export default function KECApp() {
               <button
                 onClick={handleFinalize}
                 disabled={autoFinalize}
-                className="mt-6 w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3 px-6 rounded-full font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn w-full mt-6"
               >
                 Place Order
               </button>
@@ -415,8 +421,12 @@ export default function KECApp() {
             {/* Results Table */}
             {(authorizeResults || finalizeResults) && (
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                  4. Inspect Results and Copy Tokens <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">Front End + Back End</span>
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+                  <span>4. Inspect Results and Copy Tokens</span>
+                  <span>
+                    <span className="badge badge-fe mr-1">Front End</span>
+                    <span className="badge badge-be">Back End</span>
+                  </span>
                 </h2>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
                   Inspect raw fields from authorize()/finalize(). Copy authorization_token for your backend to create/capture the order. client_token is used to initialize client-side SDKs. collected_shipping_address appears when collect_shipping_address=true.
@@ -447,7 +457,7 @@ export default function KECApp() {
                           <td className="py-3 px-4">
                             <button
                               onClick={() => copyToClipboard(row.value)}
-                              className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                              className="btn"
                             >
                               Copy
                             </button>

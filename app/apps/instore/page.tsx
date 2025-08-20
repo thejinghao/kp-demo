@@ -167,8 +167,9 @@ export default function InStoreApp() {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Step 1: Create In-Store Session */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-              1. Create In-Store Session <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800">Back End</span>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+              <span>1. Create In-Store Session</span>
+              <span className="badge badge-be">Back End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
               Creates a Klarna Payments session with acquiring_channel set to in_store. The response contains a distribution result_url used in the next step.
@@ -198,7 +199,7 @@ export default function InStoreApp() {
             <button
               onClick={createInStoreSession}
               disabled={isCreatingSession || !kpUsername.trim() || !kpPassword.trim()}
-              className="px-6 py-3 bg-[var(--color-primary-black)] text-[var(--color-primary-white)] rounded-lg font-medium hover:opacity-90 focus:ring-2 focus:ring-[var(--color-secondary-eggplant)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="btn"
             >
               {isCreatingSession ? 'Creating...' : 'Create Session'}
             </button>
@@ -223,7 +224,10 @@ export default function InStoreApp() {
 
           {/* Step 2: Retrieve QR code (POS/Kiosk style) */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">2. Retrieve QR Code <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span></h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2 flex items-center justify-between gap-2">
+              <span>2. Retrieve QR Code</span>
+              <span className="badge badge-fe">Front End</span>
+            </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">Displays a QR code for the shopper to scan on their device.</p>
 
             {qrDataUrl ? (
@@ -257,14 +261,20 @@ export default function InStoreApp() {
 
           {/* Step 3: Monitor Session Status */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">3. Monitor Session Status <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">Front End + Back End</span></h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2 flex items-center justify-between gap-2">
+              <span>3. Monitor Session Status</span>
+              <span>
+                <span className="badge badge-fe mr-1">Front End</span>
+                <span className="badge badge-be">Back End</span>
+              </span>
+            </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">Poll the distribution result_url for updates. When status changes, continue your order flow on the server.</p>
 
             <div className="flex gap-4 mb-4 items-center">
               <button
                 onClick={pollDistribution}
                 disabled={!resultUrl || !kpUsername.trim() || !kpPassword.trim() || isPolling}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="btn"
               >
                 {isPolling ? 'Checking…' : 'Check Distribution Status'}
               </button>
