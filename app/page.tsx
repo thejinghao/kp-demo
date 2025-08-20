@@ -6,7 +6,7 @@ export default function Home() {
     {
       id: "osm",
       name: "On-Site Messaging",
-      description: "OSM with various placements and locales",
+      description: "OSM via SDK, with placements and locales",
       icon: "✉️",
       href: "/apps/osm",
       tags: ["KP","Ecomm"]
@@ -29,15 +29,15 @@ export default function Home() {
     },
     {
       id: "hpp",
-      name: "Hosted Payment Page (HPP)",
-      description: "Distribute a Klarna-hosted payment page",
+      name: "Hosted Payment Page",
+      description: "Create and distribute a HPP session",
       icon: "🧾",
       href: "/apps/hpp",
       tags: ["KP", "Ecomm"]
     },
     {
       id: "instore",
-      name: "In-Store Payments",
+      name: "In-Store",
       description: "Create and distribute QR for in-store",
       icon: "🛍️",
       href: "/apps/instore",
