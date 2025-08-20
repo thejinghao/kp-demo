@@ -12,6 +12,28 @@ declare global {
 const defaultUsername = process.env.NEXT_PUBLIC_KLARNA_API_USERNAME || '';
 const defaultPassword = process.env.NEXT_PUBLIC_KLARNA_API_PASSWORD || '';
 
+// Default request body for Payments.authorize()
+const defaultAuthorizePayload = {
+  purchase_country: 'US',
+  purchase_currency: 'USD',
+  locale: 'en-US',
+  order_amount: 25900,
+  order_tax_amount: 0,
+  order_lines: [
+    {
+      type: 'physical',
+      reference: 'SKU-123',
+      name: 'T-Shirt',
+      quantity: 1,
+      quantity_unit: 'pcs',
+      unit_price: 25900,
+      tax_rate: 0,
+      total_amount: 25900,
+      total_tax_amount: 0
+    }
+  ]
+};
+
 export default function KPPlaceOrderApp() {
   const [clientToken, setClientToken] = useState('');
   const [isSDKInitialized, setIsSDKInitialized] = useState(false);
@@ -33,6 +55,13 @@ export default function KPPlaceOrderApp() {
 
   // Payment selector state
   const [selectedPayment, setSelectedPayment] = useState<'klarna' | 'card'>('klarna');
+
+  // Authorize payload editor state
+  const [authorizePayloadJson, setAuthorizePayloadJson] = useState<string>(
+    JSON.stringify(defaultAuthorizePayload, null, 2)
+  );
+  const [isAuthorizePayloadValid, setIsAuthorizePayloadValid] = useState(true);
+  const [authorizePayloadError, setAuthorizePayloadError] = useState<string>('');
 
   const initializeSDK = () => {
     if (!clientToken.trim()) {
@@ -66,26 +95,14 @@ export default function KPPlaceOrderApp() {
 
     setIsLoading(true);
     try {
-      const authorizePayload = {
-        purchase_country: 'US',
-        purchase_currency: 'USD',
-        locale: 'en-US',
-        order_amount: 25900,
-        order_tax_amount: 0,
-        order_lines: [
-          {
-            type: 'physical',
-            reference: 'SKU-123',
-            name: 'T-Shirt',
-            quantity: 1,
-            quantity_unit: 'pcs',
-            unit_price: 25900,
-            tax_rate: 0,
-            total_amount: 25900,
-            total_tax_amount: 0
-          }
-        ]
-      };
+      let authorizePayload: any;
+      try {
+        authorizePayload = JSON.parse(authorizePayloadJson || '{}');
+      } catch (e: any) {
+        alert('Authorize payload JSON is invalid.');
+        setIsLoading(false);
+        return;
+      }
 
       window.Klarna.Payments.authorize({
         instance_id: 'klarna-container-instance',
@@ -407,6 +424,39 @@ export default function KPPlaceOrderApp() {
               After init, render the Klarna widget using Payments.load(&#123; container, payment_method_categories &#125;). When the shopper is ready, call Payments.authorize(options, <strong>payload</strong>, callback) to create an authorization. Use the returned authorization_token in the next step to create the order on your server.
             </p>
 
+            {/* Collapsible editor for authorize() request body */}
+            <details className="mb-4 rounded-lg border border-slate-200 dark:border-slate-700">
+              <summary className="cursor-pointer select-none px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+                Edit authorize() request body (JSON)
+              </summary>
+              <div className="p-4 space-y-3">
+                <textarea
+                  value={authorizePayloadJson}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setAuthorizePayloadJson(value);
+                    try {
+                      JSON.parse(value);
+                      setIsAuthorizePayloadValid(true);
+                      setAuthorizePayloadError('');
+                    } catch (err: any) {
+                      setIsAuthorizePayloadValid(false);
+                      setAuthorizePayloadError(err?.message || 'Invalid JSON');
+                    }
+                  }}
+                  rows={12}
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y font-mono"
+                />
+                <div className="text-xs">
+                  {isAuthorizePayloadValid ? (
+                    <span className="text-green-600">Valid JSON</span>
+                  ) : (
+                    <span className="text-red-600">Invalid JSON: {authorizePayloadError}</span>
+                  )}
+                </div>
+              </div>
+            </details>
+
             {/* Payment selector */}
             <div className="space-y-3 mb-4">
               <label className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 text-slate-400 cursor-not-allowed">
@@ -435,7 +485,7 @@ export default function KPPlaceOrderApp() {
                       ) : (
                         <button
                           onClick={placeOrder}
-                          disabled={isLoading}
+                          disabled={isLoading || !isAuthorizePayloadValid}
                           className="btn"
                         >
                           {isLoading ? (
