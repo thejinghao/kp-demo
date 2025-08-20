@@ -1,7 +1,5 @@
 # App Directory
 
-A collection of interactive demos and tools, built with modern web technologies.
-
 ## 🚀 Getting Started
 
 ```bash

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "App Directory - Interactive Demos & Tools",
-  description: "A collection of interactive demos and tools, built with modern web technologies",
+  title: "Klarna Playground - Demos & Tools",
+  description: "A collection of demos and tools for integrating Klarna.",
 };
 
 export default function RootLayout({
