@@ -353,7 +353,7 @@ export default function KPPlaceOrderApp() {
             <div className="space-y-3 mb-4">
               <label className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 text-slate-400 cursor-not-allowed">
                 <input type="radio" name="payment" disabled />
-                <span className="font-medium">Credit Card</span>
+                <span className="font-medium text-slate-700">Credit Card</span>
               </label>
 
               <div className="rounded-lg border border-slate-900">
@@ -364,7 +364,7 @@ export default function KPPlaceOrderApp() {
                     checked={selectedPayment === 'klarna'}
                     onChange={() => setSelectedPayment('klarna')}
                   />
-                  <span className="font-medium">Klarna</span>
+                  <span className="font-medium text-slate-700">Klarna</span>
                 </label>
 
                 {selectedPayment === 'klarna' && (
