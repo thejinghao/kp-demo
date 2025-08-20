@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import Link from 'next/link';
 
 declare global {
@@ -12,6 +12,7 @@ declare global {
 
 export default function KECApp() {
   const [autoFinalize, setAutoFinalize] = useState(true);
+  const [collectShippingAddress, setCollectShippingAddress] = useState(false);
   const [showPayloadOptions, setShowPayloadOptions] = useState(false);
   const [showFinalizePayload, setShowFinalizePayload] = useState(false);
   const [customAmount, setCustomAmount] = useState('');
@@ -22,37 +23,61 @@ export default function KECApp() {
   const [finalizePayload, setFinalizePayload] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFinalized, setIsFinalized] = useState(false);
+  const [isKlarnaReady, setIsKlarnaReady] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState('');
   
   const containerRef = useRef<HTMLDivElement>(null);
+  const isScriptLoadedRef = useRef(false);
+  const klarnaButtonsRef = useRef<any>(null);
+  const hasLoadedOnceRef = useRef(false); // retained if we later need to guard loads
 
-  const orderPayloadTemplate = {
-    "purchase_country": "US",
-    "purchase_currency": "USD",
-    "intent": "buy_and_default_tokenize",
-    "locale": "en-US",
-    "merchant_reference1": "12142424",
-    "merchant_reference2": "phe2323",
-    "merchant_urls": {
-      "authorization": "https://webhook.site/c292a862-2376-4944-aea7-25fcba1ebe7d",
-      "confirmation": "https://example.com/confirmation"
-    },
-    "order_amount": 19092,
-    "order_lines": [{
-      "product_url": "https://example.com/product",
-      "image_url": "https://example.com/image.jpg",
-      "type": "physical",
-      "reference": "PROD-001",
-      "name": "Sample Product",
-      "quantity": 1,
-      "unit_price": 19092,
-      "total_amount": 19092
-    }]
+  const appendSidParam = (urlString: string): string => {
+    try {
+      const u = new URL(urlString);
+      u.searchParams.set('sid', '{{session.id}}');
+      return u.toString();
+    } catch {
+      return urlString + (urlString.includes('?') ? '&' : '?') + 'sid={{session.id}}';
+    }
   };
+
+  const orderPayloadTemplate = useMemo(() => {
+    const defaultAuth = 'https://example.com/authorization';
+    const defaultConfirm = 'https://example.com/confirmation';
+    const target = webhookUrl && webhookUrl.trim() ? appendSidParam(webhookUrl.trim()) : '';
+
+    return {
+      purchase_country: 'US',
+      purchase_currency: 'USD',
+      intent: 'buy_and_default_tokenize',
+      locale: 'en-US',
+      merchant_reference1: 'EXTERNAL_FACING_ID_xxxxxxxx',
+      merchant_reference2: 'INTERNAL_FACING_ID_yyyyyyyy',
+      merchant_urls: {
+        authorization: target || defaultAuth,
+        confirmation: target || defaultConfirm,
+        notification: target || undefined,
+      },
+      order_amount: 19092,
+      order_lines: [
+        {
+          product_url: 'https://example.com/product',
+          image_url: 'https://example.com/image.jpg',
+          type: 'physical',
+          reference: 'PROD-001',
+          name: 'Sample Product',
+          quantity: 1,
+          unit_price: 19092,
+          total_amount: 19092,
+        },
+      ],
+    } as const;
+  }, [webhookUrl]);
 
   const payloadOptions = {
     option1: {
       ...orderPayloadTemplate,
-      description: "Keep using the same payload sent with authorize (order_amount: $190.92)"
+      description: "No changes to payload"
     },
     option2: {
       ...orderPayloadTemplate,
@@ -62,20 +87,13 @@ export default function KECApp() {
         unit_price: 20000,
         total_amount: 20000
       }],
-      description: "Increase order_amount to $200.00 (e.g. update delivery option)"
+      description: "Change order_amount to $200.00"
     },
     option3: {
       ...orderPayloadTemplate,
-      description: "Custom Amount",
+      description: "Change order_amount to:",
       isCustom: true
     },
-    option6: {
-      ...orderPayloadTemplate,
-      purchase_country: "CA",
-      purchase_currency: "CAD",
-      locale: "es-CA",
-      description: "Change purchase_country and purchase_currency (From US-USD to CA-CAD) (Not supported)"
-    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -83,11 +101,17 @@ export default function KECApp() {
   };
 
   const handleAuthorize = (authorize: any) => {
-    const payload = { ...orderPayloadTemplate };
+    const payload = { ...orderPayloadTemplate } as any;
+    // Ensure notification is omitted if webhookUrl empty
+    if (!webhookUrl.trim()) {
+      if (payload.merchant_urls && payload.merchant_urls.notification === undefined) {
+        // nothing to do
+      }
+    }
     setAuthorizePayload(JSON.stringify(payload, null, 2));
     
     authorize({
-      collect_shipping_address: false,
+      collect_shipping_address: collectShippingAddress,
       auto_finalize: autoFinalize
     }, payload, (result: any) => {
       setAuthorizeResults(result);
@@ -128,34 +152,66 @@ export default function KECApp() {
     });
   };
 
+  // Helper to (re)load the Klarna button into the container
+  const loadKlarnaButton = () => {
+    if (!window.Klarna?.Payments?.Buttons) return;
+    if (!containerRef.current) return;
+
+    // Clear existing content to avoid duplicate buttons
+    containerRef.current.innerHTML = '';
+
+    // Initialize and load the button
+    klarnaButtonsRef.current = window.Klarna.Payments.Buttons.init({
+      client_key: "klarna_test_client_ZHh4PzVrciRtZWtQTzdSR2RXY0wyYnhQbHBuUjk1OCMsMjllYjEwZGYtOGE5OC00OGFmLWIwMjQtMGViMzFmNjhlNGQwLDEseDNIcWhEdlpZSmNOMXcrTVFPL1p1cXFod2djZEdrUTQ1N055UytJMHhkUT0",
+    });
+
+    klarnaButtonsRef.current.load({
+      container: "#klarna-container",
+      theme: "dark",
+      shape: "pill",
+      locale: "en-US",
+      on_click: handleAuthorize,
+    }, function(loadResult: any) {
+      console.log('loadResult', loadResult);
+    });
+  };
+
+  // Load Klarna script once (do not auto-load the button)
   useEffect(() => {
-    // Initialize Klarna
-    window.klarnaAsyncCallback = function() {
-      window.Klarna.Payments.Buttons.init({
-        client_key: "klarna_test_client_ZHh4PzVrciRtZWtQTzdSR2RXY0wyYnhQbHBuUjk1OCMsMjllYjEwZGYtOGE5OC00OGFmLWIwMjQtMGViMzFmNjhlNGQwLDEseDNIcWhEdlpZSmNOMXcrTVFPL1p1cXFod2djZEdrUTQ1N055UytJMHhkUT0",
-      }).load({
-        container: "#klarna-container",
-        theme: "dark",
-        shape: "pill",
-        locale: "en-US",
-        on_click: handleAuthorize,
-      }, function(loadResult: any) {
-        console.log('loadResult', loadResult);
-      });
-    };
+    // If script already loaded globally, just (re)load button
+    if ((window as any).Klarna?.Payments?.Buttons) {
+      isScriptLoadedRef.current = true;
+      setIsKlarnaReady(true);
+      return;
+    }
 
-    // Load Klarna script
-    const script = document.createElement('script');
-    script.src = 'https://x.klarnacdn.net/kp/lib/v1/api.js';
-    script.async = true;
-    document.head.appendChild(script);
+    // Assign async callback exactly once
+    if (!(window as any).klarnaAsyncCallback) {
+      (window as any).klarnaAsyncCallback = () => {
+        isScriptLoadedRef.current = true;
+        setIsKlarnaReady(true);
+      };
+    }
 
+    // Inject the Klarna script if not present
+    const existing = document.querySelector('script[src="https://x.klarnacdn.net/kp/lib/v1/api.js"]');
+    if (!existing) {
+      const script = document.createElement('script');
+      script.src = 'https://x.klarnacdn.net/kp/lib/v1/api.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    // Cleanup: clear container on unmount; do not remove the global script
     return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
       }
+      klarnaButtonsRef.current = null;
     };
-  }, [autoFinalize]);
+  }, []);
+
+  // Manual load trigger — do not auto-reload on state changes
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -184,8 +240,24 @@ export default function KECApp() {
             {/* Configuration Section */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                Configuration
+                1. Configure Authorize Options <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span>
               </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Configure the options passed to Payments.authorize(). Set auto_finalize=true to complete the order in a single authorize step. Enable collect_shipping_address to have Klarna return the shopper’s address so you can calculate shipping and taxes. These flags influence whether finalize_required appears in the authorize response.
+              </p>
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Webhook URL for merchant_urls (optional)</label>
+                  <a href="https://webhook.site/" target="_blank" rel="noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">Get a Webhook URL</a>
+                </div>
+                <input
+                  value={webhookUrl}
+                  onChange={(e) => setWebhookUrl(e.target.value)}
+                  placeholder="https://webhook.site/210e33b6-4836-4041-8a7b-f7c900f01cf0"
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                />
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Will be used for merchant_urls.authorization, confirmation, and notification. We append <code>{'sid={{session.id}}'}</code> to help correlate sessions.</p>
+              </div>
               
               <div className="space-y-4">
                 <div>
@@ -220,11 +292,59 @@ export default function KECApp() {
                 
                 <div>
                   <h3 className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-3">
-                    Klarna Button:
+                    collect_shipping_address:
                   </h3>
-                  <div id="klarna-container" ref={containerRef}></div>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="collect_shipping_address"
+                        value="true"
+                        checked={collectShippingAddress === true}
+                        onChange={() => setCollectShippingAddress(true)}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-slate-700 dark:text-slate-300">True</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="collect_shipping_address"
+                        value="false"
+                        checked={collectShippingAddress === false}
+                        onChange={() => setCollectShippingAddress(false)}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-slate-700 dark:text-slate-300">False</span>
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={loadKlarnaButton}
+                      disabled={!isKlarnaReady}
+                      className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-2 px-4 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Load Klarna Button
+                    </button>
+                    {!isKlarnaReady && (
+                      <span className="text-sm text-slate-500 dark:text-slate-400">Loading Klarna SDK…</span>
+                    )}
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* Klarna Button Container (below Configuration) */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                2. Load Klarna Button and Authorize <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Front End</span>
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Load the Klarna Buttons SDK and render a button into the container. Clicking the button calls Payments.authorize(options, orderPayload, callback). Klarna handles user authentication/consent and returns approved, finalize_required, and authorization_token in the callback.
+              </p>
+              <div id="klarna-container" ref={containerRef}></div>
             </div>
 
             {/* Success Message */}
@@ -236,61 +356,71 @@ export default function KECApp() {
               </div>
             )}
 
-            {/* Payload Options */}
-            {showPayloadOptions && (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                  Review Your Order
-                </h2>
-                
-                <div className="space-y-4">
-                  {Object.entries(payloadOptions).map(([key, option]) => (
-                    <label key={key} className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="payload_option"
-                        value={key}
-                        checked={selectedPayloadOption === key}
-                        onChange={() => setSelectedPayloadOption(key)}
-                        className="mt-1 text-blue-600 focus:ring-blue-500"
-                      />
-                      <div className="flex-1">
-                        <span className="text-slate-700 dark:text-slate-300">
-                          {option.description}
-                        </span>
-                        {key === 'option3' && (
-                          <div className="mt-2">
-                            <input
-                              type="number"
-                              value={customAmount}
-                              onChange={(e) => setCustomAmount(e.target.value)}
-                              placeholder="Enter amount"
-                              min="0"
-                              step="0.01"
-                              className="w-32 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </label>
-                  ))}
-                </div>
-                
-                <button
-                  onClick={handleFinalize}
-                  className="mt-6 w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3 px-6 rounded-full font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-lg"
-                >
-                  Place Order // finalize()
-                </button>
+            {/* Payload Options - Always Visible */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                3. Review and Finalize Authorization <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">Front End + Back End</span>
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Use Payments.finalize() when finalize_required is true or when you need to adjust order totals. Select a payload option below and click Place Order to call finalize.
+              </p>
+
+              <div className="space-y-4">
+                {Object.entries(payloadOptions).map(([key, option]) => (
+                  <label
+                    key={key}
+                    className={`flex items-start gap-3 ${autoFinalize ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    <input
+                      type="radio"
+                      name="payload_option"
+                      value={key}
+                      checked={selectedPayloadOption === key}
+                      onChange={() => setSelectedPayloadOption(key)}
+                      disabled={autoFinalize}
+                      className="mt-1 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                    <div className="flex-1">
+                      <span className="text-slate-700 dark:text-slate-300">
+                        {option.description}
+                      </span>
+                      {key === 'option3' && (
+                        <div className="mt-2">
+                          <input
+                            type="number"
+                            value={customAmount}
+                            onChange={(e) => setCustomAmount(e.target.value)}
+                            placeholder="Enter amount"
+                            min="0"
+                            step="0.01"
+                            disabled={autoFinalize}
+                            className="w-32 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </label>
+                ))}
               </div>
-            )}
+
+              <button
+                onClick={handleFinalize}
+                disabled={autoFinalize}
+                className="mt-6 w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3 px-6 rounded-full font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Place Order
+              </button>
+            </div>
 
             {/* Results Table */}
             {(authorizeResults || finalizeResults) && (
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                  Results
+                  4. Inspect Results and Copy Tokens <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">Front End + Back End</span>
                 </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Inspect raw fields from authorize()/finalize(). Copy authorization_token for your backend to create/capture the order. client_token is used to initialize client-side SDKs. collected_shipping_address appears when collect_shipping_address=true.
+                </p>
                 
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -336,8 +466,11 @@ export default function KECApp() {
             {/* Order Payload Template */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                Order Payload Template
+                Reference: Order Payload Template
               </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                This is the baseline order object used in authorize() and finalize(). All monetary values are in minor units (cents). Adjust references, prices, and merchant URLs to match your system.
+              </p>
               <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
                 <pre className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
                   {JSON.stringify(orderPayloadTemplate, null, 2)}
@@ -349,8 +482,11 @@ export default function KECApp() {
             {authorizePayload && (
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                  Authorize Payload
+                  Reference: Authorize Payload
                 </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  This is the exact JSON sent to Payments.authorize(). On success, use approved/finalize_required and authorization_token to decide whether to call finalize or hand the token to your backend.
+                </p>
                 <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
                   <pre className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
                     {authorizePayload}
@@ -363,8 +499,11 @@ export default function KECApp() {
             {showFinalizePayload && (
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-                  Finalize Payload
+                  Reference: Finalize Payload
                 </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  This is the JSON sent to Payments.finalize(). Use finalize when finalize_required is true or when updating order totals (shipping, tax). A successful finalize includes approved and authorization_token.
+                </p>
                 <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
                   <pre className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
                     {finalizePayload}
@@ -375,12 +514,7 @@ export default function KECApp() {
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="text-center mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
-          <p className="text-slate-500 dark:text-slate-400">
-            Klarna Express Checkout Demo • Built with Next.js & Tailwind CSS
-          </p>
-        </footer>
+        
       </div>
     </div>
   );
