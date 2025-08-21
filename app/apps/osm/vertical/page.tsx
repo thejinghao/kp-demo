@@ -89,10 +89,10 @@ export default function OSMAppVertical() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <Link 
-              href="/apps/osm"
+              href="/"
               className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
-              ← Back to OSM
+              ← Back to Apps
             </Link>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Klarna OSM Demo (Vertical)
