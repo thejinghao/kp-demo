@@ -49,9 +49,9 @@ export default function KPPlaceOrderApp() {
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [createOrderCall, setCreateOrderCall] = useState<{ request?: any; response?: any } | null>(null);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
-  const [createCustomerToken, setCreateCustomerToken] = useState(false);
   const [createCustomerTokenCall, setCreateCustomerTokenCall] = useState<{ request?: any; response?: any } | null>(null);
   const [isCreatingCustomerToken, setIsCreatingCustomerToken] = useState(false);
+  const [sessionIntent, setSessionIntent] = useState<'buy' | 'buy_and_tokenize' | 'buy_and_default_tokenize'>('buy');
 
   // Payment selector state
   const [selectedPayment, setSelectedPayment] = useState<'klarna' | 'card'>('klarna');
@@ -62,6 +62,100 @@ export default function KPPlaceOrderApp() {
   );
   const [isAuthorizePayloadValid, setIsAuthorizePayloadValid] = useState(true);
   const [authorizePayloadError, setAuthorizePayloadError] = useState<string>('');
+
+  // Build an order payload that matches the selection in Step 1
+  const buildOrderPayload = (
+    intent: 'buy' | 'buy_and_tokenize' | 'buy_and_default_tokenize'
+  ) => {
+    if (intent === 'buy_and_tokenize') {
+      return {
+        purchase_country: 'US',
+        purchase_currency: 'USD',
+        locale: 'en-US',
+        order_amount: 19900,
+        order_tax_amount: 0,
+        order_lines: [
+          {
+            type: 'digital',
+            reference: 'SUB-001',
+            name: 'Premium Subscription',
+            quantity: 1,
+            quantity_unit: 'pcs',
+            unit_price: 19900,
+            tax_rate: 0,
+            total_amount: 19900,
+            total_tax_amount: 0,
+            subscription: {
+              name: 'Premium Plan',
+              interval: 'MONTH',
+              interval_count: 6
+            }
+          }
+        ]
+      };
+    }
+
+    if (intent === 'buy_and_default_tokenize') {
+      return {
+        purchase_country: 'US',
+        purchase_currency: 'USD',
+        locale: 'en-US',
+        order_amount: 45800,
+        order_tax_amount: 0,
+        order_lines: [
+          {
+            type: 'physical',
+            reference: 'SKU-123',
+            name: 'T-Shirt',
+            quantity: 1,
+            quantity_unit: 'pcs',
+            unit_price: 25900,
+            tax_rate: 0,
+            total_amount: 25900,
+            total_tax_amount: 0
+          },
+          {
+            type: 'digital',
+            reference: 'SUB-001',
+            name: 'Premium Subscription',
+            quantity: 1,
+            quantity_unit: 'pcs',
+            unit_price: 19900,
+            tax_rate: 0,
+            total_amount: 19900,
+            total_tax_amount: 0,
+            subscription: {
+              name: 'Premium Plan',
+              interval: 'MONTH',
+              interval_count: 6
+            }
+          }
+        ]
+      };
+    }
+
+    // Default: buy (physical only)
+    return {
+      purchase_country: 'US',
+      purchase_currency: 'USD',
+      locale: 'en-US',
+      order_amount: 25900,
+      order_tax_amount: 0,
+      order_lines: [
+        {
+          type: 'physical',
+          reference: 'SKU-123',
+          name: 'T-Shirt',
+          quantity: 1,
+          quantity_unit: 'pcs',
+          unit_price: 25900,
+          tax_rate: 0,
+          total_amount: 25900,
+          total_tax_amount: 0
+        }
+      ]
+    };
+  };
 
   const initializeSDK = () => {
     if (!clientToken.trim()) {
@@ -139,33 +233,22 @@ export default function KPPlaceOrderApp() {
     };
   }, []);
 
+  // Keep the authorize editor JSON synced with the current selection
+  useEffect(() => {
+    const payload = buildOrderPayload(sessionIntent);
+    setAuthorizePayloadJson(JSON.stringify(payload, null, 2));
+    setIsAuthorizePayloadValid(true);
+    setAuthorizePayloadError('');
+  }, [sessionIntent]);
+
   const createSession = async () => {
     if (!kpUsername.trim() || !kpPassword.trim()) {
       alert('Enter API Username and Password first.');
       return;
     }
 
-    const samplePayload = {
-      intent: createCustomerToken ? 'buy_and_default_tokenize' : 'buy',
-      purchase_country: 'US',
-      purchase_currency: 'USD',
-      locale: 'en-US',
-      order_amount: 25900,
-      order_tax_amount: 0,
-      order_lines: [
-        {
-          type: 'physical',
-          reference: 'SKU-123',
-          name: 'T-Shirt',
-          quantity: 1,
-          quantity_unit: 'pcs',
-          unit_price: 25900,
-          tax_rate: 0,
-          total_amount: 25900,
-          total_tax_amount: 0
-        }
-      ]
-    };
+    const orderPayload = buildOrderPayload(sessionIntent);
+    const samplePayload = { intent: sessionIntent, ...orderPayload } as any;
 
     setIsCreatingSession(true);
     try {
@@ -201,10 +284,7 @@ export default function KPPlaceOrderApp() {
       alert('Enter API Username and Password first.');
       return;
     }
-    if (!createCustomerToken) {
-      alert('Enable "Create Customer Token" in Step 1 to proceed.');
-      return;
-    }
+    // Session intent is selected in Step 1; both available intents support creating customer tokens
 
     const tokenPayload = {
       description: 'Customer XXX Token',
@@ -245,27 +325,8 @@ export default function KPPlaceOrderApp() {
       return;
     }
 
-    // Use the SAME payload that was sent to authorize() above
-    const orderPayload = {
-      purchase_country: 'US',
-      purchase_currency: 'USD',
-      locale: 'en-US',
-      order_amount: 25900,
-      order_tax_amount: 0,
-      order_lines: [
-        {
-          type: 'physical',
-          reference: 'SKU-123',
-          name: 'T-Shirt',
-          quantity: 1,
-          quantity_unit: 'pcs',
-          unit_price: 25900,
-          tax_rate: 0,
-          total_amount: 25900,
-          total_tax_amount: 0
-        }
-      ]
-    };
+    // Build the same payload that was used to authorize() and session creation
+    const orderPayload = buildOrderPayload(sessionIntent);
 
     setIsCreatingOrder(true);
     try {
@@ -341,16 +402,18 @@ export default function KPPlaceOrderApp() {
               </div>
             </div>
 
-            <label className="flex items-center gap-3 mb-4">
-              <input
-                type="checkbox"
-                checked={createCustomerToken}
-                onChange={(e) => setCreateCustomerToken(e.target.checked)}
-              />
-              <span className="text-sm text-slate-700 dark:text-slate-300">
-                Create Customer Token (sets session intent to <code>buy_and_default_tokenize</code>)
-              </span>
-            </label>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Session intent</label>
+              <select
+                value={sessionIntent}
+                onChange={(e) => setSessionIntent(e.target.value as 'buy' | 'buy_and_tokenize' | 'buy_and_default_tokenize')}
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
+                <option value="buy">buy</option>
+                <option value="buy_and_tokenize">buy_and_tokenize</option>
+                <option value="buy_and_default_tokenize">buy_and_default_tokenize</option>
+              </select>
+            </div>
 
             <button
               onClick={createSession}
@@ -523,7 +586,7 @@ export default function KPPlaceOrderApp() {
               <span className="badge badge-be">Back End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Use the authorization_token from authorize() to create a customer token. Enable the toggle in Step 1 to set session intent to <code>buy_and_default_tokenize</code>.
+              Use the authorization_token from authorize() to create a customer token. Select the session intent in Step 1 (<code>buy</code>, <code>buy_and_tokenize</code> or <code>buy_and_default_tokenize</code>).
             </p>
 
             <div className="flex items-end gap-4 mb-4">
@@ -538,7 +601,7 @@ export default function KPPlaceOrderApp() {
               </div>
               <button
                 onClick={createCustomerTokenRequest}
-                disabled={isCreatingCustomerToken || !createCustomerToken || !authorizationToken || !kpUsername.trim() || !kpPassword.trim()}
+                disabled={isCreatingCustomerToken || !authorizationToken || !kpUsername.trim() || !kpPassword.trim()}
                 className="btn"
               >
                 {isCreatingCustomerToken ? 'Creating...' : 'Create Customer Token'}
