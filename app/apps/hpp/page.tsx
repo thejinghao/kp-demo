@@ -2,9 +2,9 @@
 
 import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { getPublicKlarnaDefaults } from '@/lib/klarna';
 
-const defaultUsername = process.env.NEXT_PUBLIC_KLARNA_API_USERNAME || '';
-const defaultPassword = process.env.NEXT_PUBLIC_KLARNA_API_PASSWORD || '';
+const { username: defaultUsername, password: defaultPassword } = getPublicKlarnaDefaults();
 
 type Forwarded = { url: string; headers?: Record<string, string>; body?: unknown; method?: string };
 
@@ -321,5 +321,3 @@ export default function KlarnaHppDemo() {
     </div>
   );
 }
-
-

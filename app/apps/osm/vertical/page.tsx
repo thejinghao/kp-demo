@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import KlarnaPlacement from '../../../components/KlarnaPlacement';
+import { getPublicKlarnaClientId } from '@/lib/klarna';
 
 export default function OSMAppVertical() {
   const [selectedPrice, setSelectedPrice] = useState(1);
@@ -64,7 +65,7 @@ export default function OSMAppVertical() {
     script.async = true;
     script.setAttribute('data-environment', 'playground');
     script.src = 'https://js.klarna.com/web-sdk/v1/klarna.js';
-    script.setAttribute('data-client-id', 'klarna_test_client_ZHh4PzVrciRtZWtQTzdSR2RXY0wyYnhQbHBuUjk1OCMsMjllYjEwZGYtOGE5OC00OGFmLWIwMjQtMGViMzFmNjhlNGQwLDEseDNIcWhEdlpZSmNOMXcrTVFPL1p1cXFod2djZEdrUTQ1N055UytJMHhkUT0');
+    script.setAttribute('data-client-id', getPublicKlarnaClientId());
 
     document.head.appendChild(script);
 
@@ -331,5 +332,3 @@ export default function OSMAppVertical() {
     </div>
   );
 }
-
-

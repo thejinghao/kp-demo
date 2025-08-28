@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from 'react';
 import Link from 'next/link';
+import { getPublicKlarnaClientId } from '@/lib/klarna';
 
 declare global {
   interface Window {
@@ -162,7 +163,7 @@ export default function KECApp() {
 
     // Initialize and load the button
     klarnaButtonsRef.current = window.Klarna.Payments.Buttons.init({
-      client_key: "klarna_test_client_ZHh4PzVrciRtZWtQTzdSR2RXY0wyYnhQbHBuUjk1OCMsMjllYjEwZGYtOGE5OC00OGFmLWIwMjQtMGViMzFmNjhlNGQwLDEseDNIcWhEdlpZSmNOMXcrTVFPL1p1cXFod2djZEdrUTQ1N055UytJMHhkUT0",
+      client_key: getPublicKlarnaClientId(),
     });
 
     klarnaButtonsRef.current.load({

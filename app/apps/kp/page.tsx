@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { getPublicKlarnaDefaults } from '@/lib/klarna';
 
 declare global {
   interface Window {
@@ -9,8 +10,7 @@ declare global {
   }
 }
 
-const defaultUsername = process.env.NEXT_PUBLIC_KLARNA_API_USERNAME || '';
-const defaultPassword = process.env.NEXT_PUBLIC_KLARNA_API_PASSWORD || '';
+const { username: defaultUsername, password: defaultPassword } = getPublicKlarnaDefaults();
 
 // Default request body for Payments.authorize()
 const defaultAuthorizePayload = {
