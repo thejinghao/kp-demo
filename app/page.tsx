@@ -51,6 +51,14 @@ export default function Home() {
       href: "/apps/ct",
       tags: ["KP","Ecomm"]
     },
+    {
+      id: "om",
+      name: "Order Management",
+      description: "Lookup orders via Order Management API",
+      icon: "📦",
+      href: "/apps/om",
+      tags: ["KP", "Ops"]
+    },
 
     // Add more apps here as you create them
   ];
