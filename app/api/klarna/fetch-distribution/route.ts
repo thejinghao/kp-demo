@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOutboundAuth, shouldInspect, buildInspectorSnapshot, respondForwarded } from '../../../../lib/api/klarnaProxy';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -14,17 +15,9 @@ function toDataUrl(contentType: string, buffer: ArrayBuffer): string {
 
 export async function POST(req: NextRequest) {
 	try {
-		const auth = req.headers.get('authorization');
-		if (!auth || !auth.toLowerCase().startsWith('basic ')) {
-			return NextResponse.json({ error: 'Missing or invalid Authorization header' }, { status: 401 });
-		}
-
-		let token = auth.slice(6).trim();
-		if (token.includes(':') && !isProbablyBase64(token)) {
-			// eslint-disable-next-line n/no-deprecated-api
-			token = Buffer.from(token, 'utf-8').toString('base64');
-		}
-		const outboundAuth = `Basic ${token}`;
+		const outboundAuth = requireOutboundAuth(req);
+		const inspect = shouldInspect(req);
+		const startedAt = Date.now();
 
 		const { result_url: resultUrl } = await req.json();
 		if (!resultUrl || typeof resultUrl !== 'string') {
@@ -53,24 +46,34 @@ export async function POST(req: NextRequest) {
 
 		if (!res.ok) {
 			const text = await res.text();
-			return NextResponse.json(
-				{ forwarded_request: forwarded, status: res.status, error: text },
-				{ status: 500 },
-			);
+			const inspector = inspect ? buildInspectorSnapshot({
+				requestId: `${startedAt}-${Math.random().toString(36).slice(2, 10)}`,
+				startedAt,
+				url,
+				method: 'GET',
+				reqHeaders: { Authorization: outboundAuth, Accept: 'image/png, image/jpeg, application/json;q=0.9, */*;q=0.8' },
+				res,
+				resBodyText: text,
+				contentType,
+			}) : undefined;
+			return respondForwarded({ url, method: 'GET', auth: outboundAuth, payload: { error: text }, status: res.status, inspector, contentType });
 		}
 
 		if (contentType.startsWith('image/')) {
 			const arrayBuffer = await res.arrayBuffer();
 			const dataUrl = toDataUrl(contentType.split(';')[0], arrayBuffer);
-			return NextResponse.json(
-				{
-					forwarded_request: forwarded,
-					data_url: dataUrl,
-					content_type: contentType,
-					status: res.status,
-				},
-				{ status: 200 },
-			);
+			const inspector = inspect ? buildInspectorSnapshot({
+				requestId: `${startedAt}-${Math.random().toString(36).slice(2, 10)}`,
+				startedAt,
+				url,
+				method: 'GET',
+				reqHeaders: { Authorization: outboundAuth, Accept: 'image/png, image/jpeg, application/json;q=0.9, */*;q=0.8' },
+				res,
+				contentType,
+				sizeBytes: arrayBuffer.byteLength,
+				dataUrl,
+			}) : undefined;
+			return respondForwarded({ url, method: 'GET', auth: outboundAuth, payload: {}, status: res.status, inspector, contentType, dataUrl });
 		}
 
 		// JSON path: expect distribution status JSON with `qr` URL
@@ -94,32 +97,35 @@ export async function POST(req: NextRequest) {
 				}
 			}
 
-			return NextResponse.json(
-				{
-					forwarded_request: forwarded,
-					distribution: payload,
-					data_url: dataUrl,
-					content_type: qrContentType || 'image/png',
-					status: res.status,
-				},
-				{ status: 200 },
-			);
+			const inspector = inspect ? buildInspectorSnapshot({
+				requestId: `${startedAt}-${Math.random().toString(36).slice(2, 10)}`,
+				startedAt,
+				url,
+				method: 'GET',
+				reqHeaders: { Authorization: outboundAuth, Accept: 'image/png, image/jpeg, application/json;q=0.9, */*;q=0.8' },
+				res,
+				resBodyText: JSON.stringify(payload),
+				contentType,
+				dataUrl,
+			}) : undefined;
+			return respondForwarded({ url, method: 'GET', auth: outboundAuth, payload: { distribution: payload }, status: res.status, inspector, contentType: qrContentType || 'image/png', dataUrl });
 		}
 
 		// Fallback for text or unexpected content types
 		const text = await res.text();
-		return NextResponse.json(
-			{
-				forwarded_request: forwarded,
-				payload: text,
-				status: res.status,
-			},
-			{ status: 200 },
-		);
+		const inspector = inspect ? buildInspectorSnapshot({
+			requestId: `${startedAt}-${Math.random().toString(36).slice(2, 10)}`,
+			startedAt,
+			url,
+			method: 'GET',
+			reqHeaders: { Authorization: outboundAuth, Accept: 'image/png, image/jpeg, application/json;q=0.9, */*;q=0.8' },
+			res,
+			resBodyText: text,
+			contentType,
+		}) : undefined;
+		return respondForwarded({ url, method: 'GET', auth: outboundAuth, payload: text, status: res.status, inspector, contentType });
 	} catch (error) {
 		const message = error instanceof Error ? error.message : 'Unknown error';
 		return NextResponse.json({ error: message }, { status: 500 });
 	}
 }
-
-

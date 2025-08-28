@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOutboundAuth, shouldInspect, buildInspectorSnapshot, respondForwarded } from '../../../../../lib/api/klarnaProxy';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -9,18 +10,9 @@ function isProbablyBase64(input: string): boolean {
 
 export async function POST(req: NextRequest) {
 	try {
-		const auth = req.headers.get('authorization');
-		if (!auth || !auth.toLowerCase().startsWith('basic ')) {
-			return NextResponse.json({ error: 'Missing or invalid Authorization header' }, { status: 401 });
-		}
-
-		let token = auth.slice(6).trim();
-		if (token.includes(':') && !isProbablyBase64(token)) {
-			// eslint-disable-next-line n/no-deprecated-api
-			token = Buffer.from(token, 'utf-8').toString('base64');
-		}
-		const outboundAuth = `Basic ${token}`;
-
+		const outboundAuth = requireOutboundAuth(req);
+		const inspect = shouldInspect(req);
+		const startedAt = Date.now();
 
 		const body = await req.json();
 		const { hpp_session_id, session_url } = body || {};
@@ -46,26 +38,28 @@ export async function POST(req: NextRequest) {
 		const contentType = res.headers.get('content-type') || '';
 		const json = contentType.includes('application/json') ? JSON.parse(text) : text;
 
-		const maskedAuth = `${outboundAuth.slice(0, 16)}...`;
-		const payload = {
-			forwarded_request: {
-				url,
-				headers: { Authorization: maskedAuth },
-				method: 'GET',
-			},
-			klarna_response: json,
+		const inspector = inspect ? buildInspectorSnapshot({
+			requestId: `${startedAt}-${Math.random().toString(36).slice(2, 10)}`,
+			startedAt,
+			url,
+			method: 'GET',
+			reqHeaders: { Authorization: outboundAuth, Accept: 'application/json' },
+			res,
+			resBodyText: typeof text === 'string' ? text : undefined,
+			contentType,
+		}) : undefined;
+
+		return respondForwarded({
+			url,
+			method: 'GET',
+			auth: outboundAuth,
+			payload: json,
 			status: res.status,
-		};
-
-		if (!res.ok) {
-			return NextResponse.json(payload, { status: 500 });
-		}
-
-		return NextResponse.json(payload, { status: 200 });
+			inspector,
+			contentType,
+		});
 	} catch (error) {
 		const message = error instanceof Error ? error.message : 'Unknown error';
 		return NextResponse.json({ error: message }, { status: 500 });
 	}
 }
-
-
