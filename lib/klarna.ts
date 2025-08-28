@@ -3,13 +3,13 @@ export function getKlarnaBaseUrl(): string {
 }
 
 export function getKlarnaAuthorizationHeader(): string {
-	const username = process.env.KLARNA_API_USERNAME;
-	const password = process.env.KLARNA_API_PASSWORD;
+	const username = process.env.NEXT_PUBLIC_KLARNA_API_USERNAME;
+	const password = process.env.NEXT_PUBLIC_KLARNA_API_PASSWORD;
 	if (username && password) {
 		return `Basic ${username}:${password}`;
 	}
 
-	throw new Error('Missing Klarna credentials. Provide KLARNA_API_USERNAME and KLARNA_API_PASSWORD');
+	throw new Error('Missing Klarna credentials. Provide NEXT_PUBLIC_KLARNA_API_USERNAME and NEXT_PUBLIC_KLARNA_API_PASSWORD');
 }
 
 async function handleKlarnaResponse<T>(res: Response): Promise<T> {
