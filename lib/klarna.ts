@@ -52,3 +52,30 @@ export async function createKlarnaSession<T>(sessionRequest: unknown): Promise<T
 		headers: { Authorization: getKlarnaAuthorizationHeader() },
 	});
 }
+
+// Client side helpers: read-only defaults from public envs.
+// These are safe to import in client components.
+export function getPublicKlarnaDefaults(): { username: string; password: string } {
+	return {
+		username: process.env.NEXT_PUBLIC_KLARNA_API_USERNAME || '',
+		password: process.env.NEXT_PUBLIC_KLARNA_API_PASSWORD || '',
+	};
+}
+
+export function buildBasicAuthFromPublicDefaults(
+	usernameOverride?: string,
+	passwordOverride?: string,
+): string | null {
+	const { username, password } = getPublicKlarnaDefaults();
+	const u = (usernameOverride ?? username) || '';
+	const p = (passwordOverride ?? password) || '';
+	if (!u || !p) return null;
+	return `Basic ${u}:${p}`;
+}
+
+export function getPublicKlarnaClientId(): string {
+	return (
+		process.env.NEXT_PUBLIC_KLARNA_CLIENT_ID ||
+		'klarna_test_client_Rz9lVUchJChzJTlQU1lTS3g4KClpOUE0ZS9XIXNFOUcsODZiOWMxYzItYTMxYi00OWRjLTk3MzctMjA5ZWRjY2Q2MTEwLDEsc3hyRllrcDFMVmJ5cGRvR3huNm5VVHVBdDlUeEZUaHJDSnMycmRNRlhtRT0'
+	);
+}
