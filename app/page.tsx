@@ -87,8 +87,9 @@ export default function Home() {
             />
           </div>
           <p className="text-xl text-[var(--color-primary-offwhite)] max-w-2xl mx-auto">
-            A collection of demos and tools for integrating Klarna.
+            A collection of demos and tools for integrating Klarna Payments. 
           </p>
+          <p className="text-slate-200 mt-2 italic">Default MID: N055491</p>
         </div>
 
         {/* Apps Grid */}
