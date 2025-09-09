@@ -83,6 +83,11 @@ export default function OSMAppVertical() {
     };
   }, []);
 
+  const examplePurchaseAmountMinor = selectedPrice === -1
+    ? (isNaN(parseFloat(customAmount)) ? 0 : Math.round(parseFloat(customAmount) * 100))
+    : dataLayer[selectedPrice].product.price * 100;
+  const exampleUrl = `{base_url}/messaging/v4?locale=${selectedLocale}&placement_key=top-strip-promotion-auto-size&purchase_amount=${examplePurchaseAmountMinor}`;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
@@ -96,7 +101,7 @@ export default function OSMAppVertical() {
               ← Back to Apps
             </Link>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Klarna OSM Demo (Vertical)
+              On-Site Messaging Demo
             </h1>
             <div className="w-20"></div>
           </div>
@@ -325,6 +330,68 @@ export default function OSMAppVertical() {
                 data-key="info-page" 
                 data-locale={selectedLocale}
               />
+            </div>
+          </section>
+
+          {/* API Integration Section */}
+          <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              Alternate Option: On-site Messaging via API
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              Call the OSM API directly using Basic Auth (same API username/password). See docs for details:
+              {' '}<a
+                href="https://docs.klarna.com/conversion-boosters/on-site-messaging/integrate-on-site-messaging/on-site-messaging-api/"
+                target="_blank"
+                rel="noreferrer"
+                className="underline hover:text-slate-900 dark:hover:text-white"
+              >OSM API docs</a>.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+                  Sample GET Request
+                </p>
+                <div className="rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-4 overflow-x-auto">
+                  <pre className="text-xs text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words"><code>{exampleUrl}</code></pre>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                  Replace {'{base_url}'} with your region endpoint, e.g. playground EU: https://api.playground.klarna.com, NA: https://api-na.playground.klarna.com, OC: https://api-oc.playground.klarna.com. Production: https://api.klarna.com (EU), https://api-na.klarna.com (NA), https://api-oc.klarna.com (OC).
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+                  Sample Response
+                </p>
+                <div className="rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-4 overflow-x-auto">
+                  <pre className="text-xs text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words"><code>{`{
+  "content": {
+    "nodes": [
+      {
+        "name": "TEXT_MAIN",
+        "type": "TEXT",
+        "value": "From $45.22/month, or 4 payments at 0% interest with Klarna"
+      },
+      {
+        "url": "https://na-assets.playground.klarnaservices.com/learn-more/index.html?showButtons=false&showBackground=true#eyJ0aWVySWQiOjM5NzAzNDM2LCJsYW5ndWFnZSI6IkVOIiwiY291bnRyeSI6IlVTIiwicHVyY2hhc2VBbW91bnQiOjEwMDAwMCwiaXNUaHJlc2hvbGQiOmZhbHNlLCJjdXN0b21QYXltZW50TWV0aG9kSWRzIjpbXSwiYmVzcG9rZUlkIjoicGF5bWVudC1jYWxjdWxhdG9yLWludGVyc3RpdGlhbC1yZXZhbXBlZCIsInBheW1lbnRNZXRob2RJZCI6MTMsInRyYWNrZXJQYXJhbWV0ZXJzIjp7ImQiOiJhZ2dyZWdhdGVkLW1lc3NhZ2luZyIsImciOiIwNzk2NWVlMC0xZGJiLTU4NmMtOTcwZi0yZWMzN2IzMWE1ZmIiLCJrIjoiOTZmZDBmOTEtYWJhMS00OWYzLWJkOWMtZjM2NjEzMmU1NmY3IiwiaiI6Ijc4YzYwYWExLTU4Y2MtNDIzMi05N2YzLWM3MjM2OTE3NjUzOCIsInB0IjoicGF5bWVudF9tZXRob2RzIiwicG0iOjEzLCJjdCI6ImdrZCIsImgiOiJFTiIsImkiOiJVUyJ9LCJ0aWVySGFzaCI6ImRlODQ1M2RmMTRkNTA1NDM5OGRjZGRiMzcxZDg3OTQ2NzVhZmZjMWY4NmJiYjI3ZDE0YWZmZGRkZWU0ODRlMDgiLCJtYXRjaFplcm9JbnRlcmVzdCI6ZmFsc2UsImNsaWVudElkIjoiMDc5NjVlZTAtMWRiYi01ODZjLTk3MGYtMmVjMzdiMzFhNWZiIiwiaW50ZXJzdGl0aWFsVHJpZ2dlcmVyIjoiYWdncmVnYXRlZC1tZXNzYWdpbmciLCJtZXNzYWdlUHJlZmVyZW5jZSI6ImtsYXJuYSIsInRoZW1lIjoiZGVmYXVsdCIsIm9wZW5QcmVRdWFsRmxvdyI6ZmFsc2UsInNob3BwaW5nU2Vzc2lvbklkIjoiIiwicmVkaXJlY3RVcmwiOiIifQ==",
+        "name": "ACTION_LEARN_MORE",
+        "type": "ACTION",
+        "label": "Learn more"
+      },
+      {
+        "alt": "Klarna",
+        "url": "https://osm.klarnaservices.com/images/logo_black_v2_1.svg",
+        "name": "KLARNA_LOGO",
+        "type": "IMAGE"
+      }
+    ]
+  },
+  "impression_url": "http://evt-na.playground.klarnaservices.com/v1/osm-client-script/1.0.0/bb?d=aggregated-messaging&g=07965ee0-1dbb-586c-970f-2ec37b31a5fb&k=96fd0f91-aba1-49f3-bd9c-f366132e56f7&j=78c60aa1-58cc-4232-97f3-c72369176538&pt=payment_methods&pm=13&ct=gkd&h=EN&i=US&sid=2nrMOcbdDd0zBqfdiY2X5&timestamp=1757436435831&iv=osm-api"
+}`}</code></pre>
+                </div>
+              </div>
             </div>
           </section>
         </main>

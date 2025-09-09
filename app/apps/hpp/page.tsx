@@ -29,6 +29,24 @@ export default function KlarnaHppDemo() {
   const popupRef = useRef<Window | null>(null);
 
   const authHeader = useMemo(() => `Basic ${kpUsername}:${kpPassword}`, [kpUsername, kpPassword]);
+  const distributionUrl = useMemo(
+    () =>
+      hppSession?.id
+        ? `{base_url}/hpp/v1/sessions/${hppSession.id}/distribution`
+        : '{base_url}/hpp/v1/sessions/{session_id}/distribution',
+    [hppSession]
+  );
+  const distributionSampleBody = useMemo(
+    () => ({
+      contact_information: {
+        email: 'jing.hao@klarna.com',
+        phone: '7189163989',
+        phone_country: 'US',
+      },
+      method: 'email',
+    }),
+    []
+  );
 
   const createPaymentsSession = async () => {
     if (!kpUsername.trim() || !kpPassword.trim()) {
@@ -265,7 +283,7 @@ export default function KlarnaHppDemo() {
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>4. Launch Checkout</span>
+              <span>4a. Option 1: Launch Checkout</span>
               <span className="badge badge-fe">Front End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Start the Klarna checkout using the hosted <code>redirect_url</code> returned from HPP create-session. You may distribute this flow via link or QR for device handoff.</p>
@@ -299,6 +317,36 @@ export default function KlarnaHppDemo() {
               {(hppSession?.redirect_url && qrCodeUrl) && (
                 <div className="hidden md:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 border-l border-slate-200 dark:border-slate-700" />
               )}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+              <span>4b. Option 2: Distribute HPP via SMS or Email</span>
+              <span className="badge badge-be">Back End</span>
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              Use the HPP <code>distribute session</code> endpoint to send a link via SMS or email. This uses the
+              <code> session_id </code> from the HPP create-session response and calls
+              <code> /hpp/v1/sessions/{'{'}session_id{'}'}/distribution</code>. In Playground, the API will only send emails, but not SMS.
+              See the docs: <a href="https://docs.klarna.com/api/hpp-merchant/#operation/distributeHppSession" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">HPP Distribute Session</a>.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Sample POST Request</h3>
+                  <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">{distributionUrl}</pre>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Sample Body</h3>
+                  <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">{JSON.stringify(distributionSampleBody, null, 2)}</pre>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Sample Email</h3>
+                <img src="/sample_hpp_email_distribution.png" alt="Sample HPP email distribution" className="w-full max-w-md rounded-lg border border-slate-200 dark:border-slate-700" />
+              </div>
             </div>
           </div>
 

@@ -586,7 +586,20 @@ export default function KPPlaceOrderApp() {
               <span className="badge badge-be">Back End</span>
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Use the authorization_token from authorize() to create a customer token. Select the session intent in Step 1 (<code>buy</code>, <code>buy_and_tokenize</code> or <code>buy_and_default_tokenize</code>).
+              Optional: only applicable when the session intent in Step 1 supports tokenization (
+              <code>buy_and_tokenize</code> or <code>buy_and_default_tokenize</code>). Use the
+              authorization_token from authorize() to create a customer token for future charges. See
+              Klarna’s Payment scenarios and intent in the
+              {' '}
+              <a
+                href="https://docs.klarna.com/payments/web-payments/integrate-with-klarna-payments/integrate-via-sdk/step-1-initiate-a-payment/?q=buy_and_default_tokenize#payment-scenarios-and-intent"
+                target="_blank"
+                rel="noreferrer"
+                className="underline"
+              >
+                docs
+              </a>
+              .
             </p>
 
             <div className="flex items-end gap-4 mb-4">
