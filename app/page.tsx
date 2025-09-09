@@ -5,8 +5,8 @@ export default function Home() {
   const apps = [
     {
       id: "osm",
-      name: "On-Site Messaging",
-      description: "OSM via SDK or API, with placements and locales",
+      name: "On-Site Messaging (OSM)",
+      description: "Implement via SDK or API",
       icon: "✉️",
       href: "/apps/osm/vertical",
       tags: ["KP","Ecomm"]
@@ -14,7 +14,7 @@ export default function Home() {
     {
       id: "kec",
       name: "Klarna Express Checkout",
-      description: "KEC with authorize and finalize flows",
+      description: "KEC single or multi-step experience",
       icon: "⚡",
       href: "/apps/kec",
       tags: ["KP","Ecomm"]
@@ -29,8 +29,8 @@ export default function Home() {
     },
     {
       id: "hpp",
-      name: "Hosted Payment Page",
-      description: "Create and distribute a HPP session",
+      name: "Hosted Payment Page (HPP)",
+      description: "Create and distribute a HPP",
       icon: "🧾",
       href: "/apps/hpp",
       tags: ["KP", "Ecomm"]
@@ -46,7 +46,7 @@ export default function Home() {
     {
       id: "ct",
       name: "Tokenized Payment",
-      description: "Manage or create order with customer token",
+      description: "Manage customer tokens or create orders",
       icon: "🔑",
       href: "/apps/ct",
       tags: ["KP","Ecomm"]
@@ -54,7 +54,7 @@ export default function Home() {
     {
       id: "om",
       name: "Order Management",
-      description: "Lookup orders via Order Management API",
+      description: "Manage existing orders via OM API",
       icon: "📦",
       href: "/apps/om",
       tags: ["KP", "Ops"]
