@@ -9,7 +9,7 @@ export default function Home() {
       description: "Implement via SDK or API",
       icon: "✉️",
       href: "/apps/osm/vertical",
-      tags: ["KP","Ecomm"]
+      tags: ["Pre-Purchase"]
     },
     {
       id: "kec",
@@ -17,7 +17,7 @@ export default function Home() {
       description: "KEC single or multi-step experience",
       icon: "⚡",
       href: "/apps/kec",
-      tags: ["KP","Ecomm"]
+      tags: ["Purchase"]
     },
     {
       id: "kp",
@@ -25,7 +25,7 @@ export default function Home() {
       description: "Klarna Payment in a standard checkout flow",
       icon: "🛒",
       href: "/apps/kp",
-      tags: ["KP","Ecomm"]
+      tags: ["Purchase"]
     },
     {
       id: "hpp",
@@ -33,7 +33,7 @@ export default function Home() {
       description: "Create and distribute a HPP",
       icon: "🧾",
       href: "/apps/hpp",
-      tags: ["KP", "Ecomm"]
+      tags: ["Purchase"]
     },
     {
       id: "instore",
@@ -41,7 +41,7 @@ export default function Home() {
       description: "Create and distribute QR for in-store",
       icon: "🛍️",
       href: "/apps/instore",
-      tags: ["KP", "In-Store"]
+      tags: ["Purchase", "In-Store"]
     },
     {
       id: "ct",
@@ -49,7 +49,7 @@ export default function Home() {
       description: "Manage customer tokens or create orders",
       icon: "🔑",
       href: "/apps/ct",
-      tags: ["KP","Ecomm"]
+      tags: ["Purchase", "Post-Purchase"]
     },
     {
       id: "om",
@@ -57,7 +57,7 @@ export default function Home() {
       description: "Manage existing orders via OM API",
       icon: "📦",
       href: "/apps/om",
-      tags: ["KP", "Ops"]
+      tags: ["Post-Purchase"]
     },
     {
       id: "disputes",
@@ -65,7 +65,7 @@ export default function Home() {
       description: "List and investigate payment disputes",
       icon: "⚖️",
       href: "/apps/disputes",
-      tags: ["KP", "Ops"]
+      tags: ["Post-Purchase"]
     },
 
     // Add more apps here as you create them
