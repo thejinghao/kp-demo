@@ -5,19 +5,19 @@ export default function Home() {
   const apps = [
     {
       id: "osm",
-      name: "On-Site Messaging",
-      description: "OSM via SDK or API, with placements and locales",
+      name: "On-Site Messaging (OSM)",
+      description: "Implement via SDK or API",
       icon: "✉️",
       href: "/apps/osm/vertical",
-      tags: ["KP","Ecomm"]
+      tags: ["Pre-Purchase"]
     },
     {
       id: "kec",
       name: "Klarna Express Checkout",
-      description: "KEC with authorize and finalize flows",
+      description: "KEC single or multi-step experience",
       icon: "⚡",
       href: "/apps/kec",
-      tags: ["KP","Ecomm"]
+      tags: ["Purchase"]
     },
     {
       id: "kp",
@@ -25,15 +25,15 @@ export default function Home() {
       description: "Klarna Payment in a standard checkout flow",
       icon: "🛒",
       href: "/apps/kp",
-      tags: ["KP","Ecomm"]
+      tags: ["Purchase"]
     },
     {
       id: "hpp",
-      name: "Hosted Payment Page",
-      description: "Create and distribute a HPP session",
+      name: "Hosted Payment Page (HPP)",
+      description: "Create and distribute a HPP",
       icon: "🧾",
       href: "/apps/hpp",
-      tags: ["KP", "Ecomm"]
+      tags: ["Purchase"]
     },
     {
       id: "instore",
@@ -41,23 +41,31 @@ export default function Home() {
       description: "Create and distribute QR for in-store",
       icon: "🛍️",
       href: "/apps/instore",
-      tags: ["KP", "In-Store"]
+      tags: ["Purchase", "In-Store"]
     },
     {
       id: "ct",
       name: "Tokenized Payment",
-      description: "Manage or create order with customer token",
+      description: "Manage customer tokens or create orders",
       icon: "🔑",
       href: "/apps/ct",
-      tags: ["KP","Ecomm"]
+      tags: ["Purchase", "Post-Purchase"]
     },
     {
       id: "om",
       name: "Order Management",
-      description: "Lookup orders via Order Management API",
+      description: "Manage existing orders via OM API",
       icon: "📦",
       href: "/apps/om",
-      tags: ["KP", "Ops"]
+      tags: ["Post-Purchase"]
+    },
+    {
+      id: "disputes",
+      name: "Disputes",
+      description: "List and investigate payment disputes",
+      icon: "⚖️",
+      href: "/apps/disputes",
+      tags: ["Post-Purchase"]
     },
 
     // Add more apps here as you create them
