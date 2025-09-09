@@ -59,6 +59,14 @@ export default function Home() {
       href: "/apps/om",
       tags: ["KP", "Ops"]
     },
+    {
+      id: "disputes",
+      name: "Disputes",
+      description: "List and investigate payment disputes",
+      icon: "⚖️",
+      href: "/apps/disputes",
+      tags: ["KP", "Ops"]
+    },
 
     // Add more apps here as you create them
   ];
