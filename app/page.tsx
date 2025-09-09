@@ -6,7 +6,7 @@ export default function Home() {
     {
       id: "osm",
       name: "On-Site Messaging",
-      description: "OSM via SDK, with placements and locales",
+      description: "OSM via SDK or API, with placements and locales",
       icon: "✉️",
       href: "/apps/osm/vertical",
       tags: ["KP","Ecomm"]
@@ -46,7 +46,7 @@ export default function Home() {
     {
       id: "ct",
       name: "Tokenized Payment",
-      description: "Create order with a saved customer token",
+      description: "Manage or create order with customer token",
       icon: "🔑",
       href: "/apps/ct",
       tags: ["KP","Ecomm"]
