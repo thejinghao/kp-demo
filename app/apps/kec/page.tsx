@@ -101,6 +101,34 @@ export default function KECApp() {
     navigator.clipboard.writeText(text);
   };
 
+  const klarnaLoadCodeSnippet = useMemo(() => {
+    return `function loadKlarnaButton() {
+  const buttons = window.Klarna.Payments.Buttons.init({
+    client_key: getPublicKlarnaClientId(),
+  });
+
+  buttons.load({
+    container: "#klarna-container",
+    theme: "dark",
+    shape: "pill",
+    locale: "en-US",
+    on_click: handleAuthorize,
+  }, function(loadResult) {
+    console.log('loadResult', loadResult);
+  });
+}
+
+function handleAuthorize(authorize) {
+  const orderPayload = /* see Order Payload Template card */ {};
+  authorize({
+    collect_shipping_address: ${collectShippingAddress},
+    auto_finalize: ${autoFinalize}
+  }, orderPayload, function(result) {
+    // handle result (approved, finalize_required, authorization_token)
+  });
+}`;
+  }, [autoFinalize, collectShippingAddress]);
+
   const handleAuthorize = (authorize: any) => {
     const payload = { ...orderPayloadTemplate } as any;
     // Ensure notification is omitted if webhookUrl empty
@@ -371,6 +399,11 @@ export default function KECApp() {
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
                 Use Payments.finalize() when finalize_required is true or when you need to adjust order totals. Select a payload option below and click Place Order to call finalize.
               </p>
+              {autoFinalize && (
+                <div className="mb-4 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg p-3">
+                  Because <code>auto_finalize</code> is set to <strong>true</strong>, authorize completes the order in a single step and does not require calling <code>finalize()</code>. The options and Place Order button are disabled.
+                </div>
+              )}
 
               <div className="space-y-4">
                 {Object.entries(payloadOptions).map(([key, option]) => (
@@ -474,13 +507,28 @@ export default function KECApp() {
 
           {/* Right Column - Payload Display */}
           <div className="space-y-6">
+            {/* Reference: KEC Button Initialization Code */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+                Reference: KEC Button Initialization Code
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                This is the exact code used to load the Klarna button and call authorize(). It reflects your current choices for <code>auto_finalize</code> and <code>collect_shipping_address</code>.
+              </p>
+              <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
+                <pre className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
+{klarnaLoadCodeSnippet}
+                </pre>
+              </div>
+            </div>
+
             {/* Order Payload Template */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                 Reference: Order Payload Template
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                This is the baseline order object used in authorize() and finalize(). All monetary values are in minor units (cents). Adjust references, prices, and merchant URLs to match your system.
+                This is the baseline order object used in authorize() and finalize(). All monetary values are in minor units (cents).
               </p>
               <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
                 <pre className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
