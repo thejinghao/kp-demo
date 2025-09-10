@@ -62,6 +62,7 @@ export default function KPPlaceOrderApp() {
   );
   const [isAuthorizePayloadValid, setIsAuthorizePayloadValid] = useState(true);
   const [authorizePayloadError, setAuthorizePayloadError] = useState<string>('');
+  const [lastAuthorizePayload, setLastAuthorizePayload] = useState<any | null>(null);
 
   // Build an order payload that matches the selection in Step 1
   const buildOrderPayload = (
@@ -198,10 +199,16 @@ export default function KPPlaceOrderApp() {
         return;
       }
 
+      const payloadForAuthorize = {
+        ...(authorizePayload && typeof authorizePayload === 'object' ? authorizePayload : {}),
+        merchant_reference1: (authorizePayload as any)?.merchant_reference1 ?? 'demo-merchant-ref-1',
+      };
+      setLastAuthorizePayload(payloadForAuthorize);
+
       window.Klarna.Payments.authorize({
         instance_id: 'klarna-container-instance',
         payment_method_categories: ['klarna']
-      }, authorizePayload, (res: any) => {
+      }, payloadForAuthorize, (res: any) => {
         console.debug('Order authorized:', res);
         setResponseData(res);
         setShowResponse(true);
@@ -325,8 +332,21 @@ export default function KPPlaceOrderApp() {
       return;
     }
 
-    // Build the same payload that was used to authorize() and session creation
-    const orderPayload = buildOrderPayload(sessionIntent);
+    // Use the same payload as authorize(); fallback to current editor JSON
+    let orderPayload: any = lastAuthorizePayload;
+    if (!orderPayload) {
+      try {
+        const parsed = JSON.parse(authorizePayloadJson || '{}');
+        orderPayload = parsed && typeof parsed === 'object' ? parsed : {};
+      } catch (e: any) {
+        alert('Authorize payload JSON is invalid.');
+        return;
+      }
+    }
+    orderPayload = {
+      ...(orderPayload && typeof orderPayload === 'object' ? orderPayload : {}),
+      merchant_reference1: (orderPayload as any)?.merchant_reference1 ?? 'demo-merchant-ref-1',
+    };
 
     setIsCreatingOrder(true);
     try {

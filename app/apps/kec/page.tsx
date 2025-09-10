@@ -401,7 +401,7 @@ function handleAuthorize(authorize) {
               </p>
               {autoFinalize && (
                 <div className="mb-4 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg p-3">
-                  Because <code>auto_finalize</code> is set to <strong>true</strong>, authorize completes the order in a single step and does not require calling <code>finalize()</code>. The options and Place Order button are disabled.
+                  Because <code>auto_finalize</code> is set to <strong>true</strong>, authorize completes the order in a single step and does not require calling <code>finalize()</code>.
                 </div>
               )}
 

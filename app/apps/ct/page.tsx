@@ -77,6 +77,7 @@ export default function CustomerTokenOrderApp() {
           },
         },
       ],
+      merchant_reference1: 'demo-merchant-ref-1',
     };
 
     setIsCreatingOrder(true);
