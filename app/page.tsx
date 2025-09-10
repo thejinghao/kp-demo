@@ -67,6 +67,14 @@ export default function Home() {
       href: "/apps/disputes",
       tags: ["Post-Purchase"]
     },
+    {
+      id: "stripe",
+      name: "Stripe Checkout",
+      description: "Stripe-hosted Checkout (all available methods)",
+      icon: "💳",
+      href: "/apps/stripe",
+      tags: ["Purchase"]
+    },
 
     // Add more apps here as you create them
   ];
