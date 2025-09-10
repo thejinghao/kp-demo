@@ -4,9 +4,9 @@ import Stripe from 'stripe'
 export default async function SuccessPage({
   searchParams,
 }: {
-  searchParams: { session_id?: string }
+  searchParams: Promise<{ session_id?: string }>
 }) {
-  const sessionId = searchParams?.session_id
+  const { session_id: sessionId } = await searchParams
   const secretKey = process.env.STRIPE_SECRET_KEY
 
   let requestSummary: any = null
