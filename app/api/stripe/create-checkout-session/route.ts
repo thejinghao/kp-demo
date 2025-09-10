@@ -1,10 +1,18 @@
 import Stripe from 'stripe';
+import { NextRequest } from 'next/server';
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   const priceId = process.env.STRIPE_PRICE_ID_USD;
-  const successUrl = process.env.STRIPE_SUCCESS_URL;
-  const cancelUrl = process.env.STRIPE_CANCEL_URL;
+  // Prefer env overrides; otherwise build dynamically from request origin
+  const envSuccessUrl = process.env.STRIPE_SUCCESS_URL;
+  const envCancelUrl = process.env.STRIPE_CANCEL_URL;
+
+  // Compute origin from request headers (supports Vercel/Next runtime)
+  const requestUrl = new URL(req.url);
+  const origin = requestUrl.origin;
+  const successUrl = envSuccessUrl || `${origin}/apps/stripe/success?session_id={CHECKOUT_SESSION_ID}`;
+  const cancelUrl = envCancelUrl || `${origin}/apps/stripe/cancel`;
 
   if (!secretKey) {
     return new Response(
@@ -18,12 +26,7 @@ export async function POST() {
       { status: 500 }
     );
   }
-  if (!successUrl || !cancelUrl) {
-    return new Response(
-      JSON.stringify({ error: 'Missing STRIPE_SUCCESS_URL or STRIPE_CANCEL_URL' }),
-      { status: 500 }
-    );
-  }
+  // No required check for URLs anymore since we can compute from origin
 
   const stripe = new Stripe(secretKey, {
     apiVersion: '2025-08-27.basil',
