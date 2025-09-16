@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import AppHeader from '@/app/components/AppHeader';
 import KlarnaPlacement from '../../../components/KlarnaPlacement';
 import { getPublicKlarnaClientId } from '@/lib/klarna';
 
@@ -91,22 +91,7 @@ export default function OSMAppVertical() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <Link 
-              href="/"
-              className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              ← Back to Apps
-            </Link>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              On-Site Messaging Demo
-            </h1>
-            <div className="w-20"></div>
-          </div>
-        </div>
-      </header>
+      <AppHeader title="On-Site Messaging Demo" backHref="/" />
 
       <div className="container mx-auto px-4 py-8">
         {/* Intro & Controls Section */}
@@ -307,7 +292,7 @@ export default function OSMAppVertical() {
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                   sidebar-promotion-auto-size
                 </p>
-                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700 w-full">
+                <div className="border border-slate-200 dark:border-slate-600 rounded-lg p-4 bg-slate-50 dark:bg-slate-700 w_full">
                   <KlarnaPlacement 
                     data-key="sidebar-promotion-auto-size" 
                     data-locale={selectedLocale}
@@ -319,7 +304,7 @@ export default function OSMAppVertical() {
 
           {/* Info Page Section */}
           <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-400 mb-2">
               Info Page
             </h2>
             <p className="text-slate-600 dark:text-slate-400 mb-6 italic text-sm">
@@ -335,7 +320,7 @@ export default function OSMAppVertical() {
 
           {/* API Integration Section */}
           <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-400 mb-2">
               Alternate Option: On-site Messaging via API
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
