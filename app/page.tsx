@@ -79,7 +79,7 @@ export default function Home() {
     {
       id: "stripe",
       name: "Stripe Checkout",
-      description: "Stripe-hosted Checkout (all available methods)",
+      description: "Stripe-hosted Checkout Page",
       icon: "💳",
       href: "/apps/stripe",
       tags: ["Purchase"],
