@@ -35,15 +35,34 @@ export async function POST(req: NextRequest) {
 
 		// Include merchant_urls and optional options (e.g., place_order_mode)
 		const includeAuthorizationToken = options?.place_order_mode === 'NONE';
-		const baseSuccess = 'https://example.com/success?sid={{session_id}}';
-		const successUrl = includeAuthorizationToken
-			? `${baseSuccess}&authorization_token={{authorization_token}}`
-			: baseSuccess;
+		const includeOrderId = options?.place_order_mode === 'PLACE_ORDER' || options?.place_order_mode === 'CAPTURE_ORDER';
+		// Build success URL dynamically from request origin; allow env override
+		const requestUrl = new URL(req.url);
+		const origin = requestUrl.origin;
+		const envSuccessBase = process.env.HPP_SUCCESS_URL_BASE; // optional, e.g. https://kp-demo.vercel.app
+		const base = envSuccessBase || origin;
+		const baseSuccess = `${base}/apps/hpp/success?sid={{session_id}}`;
+		let successUrl = baseSuccess;
+		if (includeAuthorizationToken) {
+			successUrl = `${successUrl}&authorization_token={{authorization_token}}`;
+		}
+		if (includeOrderId) {
+			successUrl = `${successUrl}&order_id={{order_id}}`;
+		}
+
+		// Standard merchant URLs for other outcomes
+		const merchantUrls: Record<string, string> = {
+			success: successUrl,
+			cancel: `${base}/apps/hpp/status?type=cancel&sid={{session_id}}`,
+			back: `${base}/apps/hpp/status?type=back&sid={{session_id}}`,
+			failure: `${base}/apps/hpp/status?type=failure&sid={{session_id}}`,
+			error: `${base}/apps/hpp/status?type=error&sid={{session_id}}`,
+		};
 
 		const outboundBody: Record<string, unknown> = {
 			payment_session_url: paymentSessionUrl,
 			merchant_urls: {
-				success: successUrl,
+				...merchantUrls,
 				// include status_update only if provided by the client
 				...(body?.merchant_urls?.status_update ? { status_update: String(body.merchant_urls.status_update) } : {}),
 			},

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import AppHeader from '@/app/components/AppHeader';
 import { getPublicKlarnaDefaults } from '@/lib/klarna';
 
 declare global {
@@ -62,6 +62,7 @@ export default function KPPlaceOrderApp() {
   );
   const [isAuthorizePayloadValid, setIsAuthorizePayloadValid] = useState(true);
   const [authorizePayloadError, setAuthorizePayloadError] = useState<string>('');
+  const [lastAuthorizePayload, setLastAuthorizePayload] = useState<any | null>(null);
 
   // Build an order payload that matches the selection in Step 1
   const buildOrderPayload = (
@@ -198,10 +199,16 @@ export default function KPPlaceOrderApp() {
         return;
       }
 
+      const payloadForAuthorize = {
+        ...(authorizePayload && typeof authorizePayload === 'object' ? authorizePayload : {}),
+        merchant_reference1: (authorizePayload as any)?.merchant_reference1 ?? 'demo-merchant-ref-1',
+      };
+      setLastAuthorizePayload(payloadForAuthorize);
+
       window.Klarna.Payments.authorize({
         instance_id: 'klarna-container-instance',
         payment_method_categories: ['klarna']
-      }, authorizePayload, (res: any) => {
+      }, payloadForAuthorize, (res: any) => {
         console.debug('Order authorized:', res);
         setResponseData(res);
         setShowResponse(true);
@@ -325,8 +332,21 @@ export default function KPPlaceOrderApp() {
       return;
     }
 
-    // Build the same payload that was used to authorize() and session creation
-    const orderPayload = buildOrderPayload(sessionIntent);
+    // Use the same payload as authorize(); fallback to current editor JSON
+    let orderPayload: any = lastAuthorizePayload;
+    if (!orderPayload) {
+      try {
+        const parsed = JSON.parse(authorizePayloadJson || '{}');
+        orderPayload = parsed && typeof parsed === 'object' ? parsed : {};
+      } catch (e: any) {
+        alert('Authorize payload JSON is invalid.');
+        return;
+      }
+    }
+    orderPayload = {
+      ...(orderPayload && typeof orderPayload === 'object' ? orderPayload : {}),
+      merchant_reference1: (orderPayload as any)?.merchant_reference1 ?? 'demo-merchant-ref-1',
+    };
 
     setIsCreatingOrder(true);
     try {
@@ -352,22 +372,7 @@ export default function KPPlaceOrderApp() {
   return (
     <div className="min-h-screen bg-[var(--color-primary-offwhite)] dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <Link 
-              href="/"
-              className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              ← Back to Apps
-            </Link>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Klarna Payment Demo
-            </h1>
-            <div className="w-20"></div>
-          </div>
-        </div>
-      </header>
+      <AppHeader title="Klarna Payment Demo" backHref="/" />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
@@ -392,7 +397,7 @@ export default function KPPlaceOrderApp() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">API Password</label>
+                <label className="block text_sm font-medium text-slate-700 dark:text-slate-300 mb-2">API Password</label>
                 <input
                   value={kpPassword}
                   onChange={(e) => setKpPassword(e.target.value)}
@@ -479,7 +484,7 @@ export default function KPPlaceOrderApp() {
 
           {/* Step 3: Render Klarna Widget & Authorize Payment */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify_between gap-2">
               <span>3. Render Klarna Widget & Authorize Payment</span>
               <span className="badge badge-fe">Front End</span>
             </h2>
@@ -602,7 +607,7 @@ export default function KPPlaceOrderApp() {
               .
             </p>
 
-            <div className="flex items-end gap-4 mb-4">
+            <div className="flex items_end gap-4 mb-4">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Authorization Token</label>
                 <input
@@ -624,13 +629,13 @@ export default function KPPlaceOrderApp() {
             {createCustomerTokenCall && (
               <div className="mt-4 space-y-4">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">External Request</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-400 mb-2">External Request</h3>
                   <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
                     {JSON.stringify(createCustomerTokenCall.request, null, 2)}
                   </pre>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">External Response</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-400 mb-2">External Response</h3>
                   <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
                     {JSON.stringify(createCustomerTokenCall.response, null, 2)}
                   </pre>
@@ -656,7 +661,7 @@ export default function KPPlaceOrderApp() {
                   value={authorizationToken}
                   onChange={(e) => setAuthorizationToken(e.target.value)}
                   placeholder="Will be auto-filled after authorize()"
-                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                  className="w_full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                 />
               </div>
               <button
@@ -671,13 +676,13 @@ export default function KPPlaceOrderApp() {
             {createOrderCall && (
               <div className="mt-4 space-y-4">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">External Request</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 mb-2">External Request</h3>
                   <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
                     {JSON.stringify(createOrderCall.request, null, 2)}
                   </pre>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">External Response</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 mb-2">External Response</h3>
                   <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
                     {JSON.stringify(createOrderCall.response, null, 2)}
                   </pre>

@@ -67,6 +67,14 @@ export default function Home() {
       href: "/apps/disputes",
       tags: ["Post-Purchase"]
     },
+    {
+      id: "stripe",
+      name: "Stripe Checkout",
+      description: "Stripe-hosted Checkout (all available methods)",
+      icon: "💳",
+      href: "/apps/stripe",
+      tags: ["Purchase"]
+    },
 
     // Add more apps here as you create them
   ];
@@ -87,8 +95,9 @@ export default function Home() {
             />
           </div>
           <p className="text-xl text-[var(--color-primary-offwhite)] max-w-2xl mx-auto">
-            A collection of demos and tools for integrating Klarna.
+            A collection of demos and tools for integrating Klarna Payments. 
           </p>
+          <p className="text-slate-200 mt-2 italic">Default MID: N055491</p>
         </div>
 
         {/* Apps Grid */}

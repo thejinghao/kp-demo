@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, useRef } from 'react';
-import Link from 'next/link';
+import AppHeader from '@/app/components/AppHeader';
 import { getPublicKlarnaClientId } from '@/lib/klarna';
 
 declare global {
@@ -245,22 +245,7 @@ function handleAuthorize(authorize) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <Link 
-              href="/"
-              className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              ← Back to Apps
-            </Link>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Klarna Express Checkout (KEC) Demo
-            </h1>
-            <div className="w-20"></div>
-          </div>
-        </div>
-      </header>
+      <AppHeader title="Klarna Express Checkout (KEC) Demo" backHref="/" />
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -401,7 +386,7 @@ function handleAuthorize(authorize) {
               </p>
               {autoFinalize && (
                 <div className="mb-4 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg p-3">
-                  Because <code>auto_finalize</code> is set to <strong>true</strong>, authorize completes the order in a single step and does not require calling <code>finalize()</code>. The options and Place Order button are disabled.
+                  Because <code>auto_finalize</code> is set to <strong>true</strong>, authorize completes the order in a single step and does not require calling <code>finalize()</code>.
                 </div>
               )}
 
