@@ -50,7 +50,7 @@ export default async function SuccessPage({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-primary-offwhite)] dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       {/* Header */}
       <AppHeader title="Stripe Checkout Success" backHref="/" />
 

@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import AppHeader from '@/app/components/AppHeader';
+import StepHeader from '@/app/components/StepHeader';
 import { getPublicKlarnaDefaults } from '@/lib/klarna';
 
 const { username: defaultUsername, password: defaultPassword } = getPublicKlarnaDefaults();
@@ -199,11 +200,9 @@ export default function KlarnaHppDemo() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>1. Configure API Credentials</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Enter your Klarna API Username and Password. These are used to construct a Basic Authorization header for server-to-server API calls. Do not expose credentials in client-side code in production.</p>
+            <StepHeader number={1} title="Configure API Credentials" right={<span className="badge badge-be">Back End</span>}>
+              Enter your Klarna API Username and Password. These are used to construct a Basic Authorization header for server-to-server API calls. Do not expose credentials in client-side code in production.
+            </StepHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">API Username</label>
@@ -217,11 +216,9 @@ export default function KlarnaHppDemo() {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>2. Create Payments Session</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Create a Payments session with your order details. From the response, capture session_id (or session_url). You will pass this to the HPP API to create a hosted session that returns a redirect_url and optional qr_code_url for distribution.</p>
+            <StepHeader number={2} title="Create Payments Session" right={<span className="badge badge-be">Back End</span>}>
+              Create a Payments session with your order details. From the response, capture session_id (or session_url). You will pass this to the HPP API to create a hosted session that returns a redirect_url and optional qr_code_url for distribution.
+            </StepHeader>
             <button onClick={createPaymentsSession} disabled={creatingPaymentsSession || !kpUsername.trim() || !kpPassword.trim()} className="btn">
               {creatingPaymentsSession ? 'Creating...' : 'Create Payments Session'}
             </button>
@@ -232,11 +229,9 @@ export default function KlarnaHppDemo() {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>3. Create HPP Session</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Send the Payments session to the HPP create session endpoint (as payment_session_url). The response includes redirect_url, session_url, and possibly qr_code_url. Use redirect_url to open Klarna’s hosted flow in a popup or new tab; qr_code_url enables device handoff.</p>
+            <StepHeader number={3} title="Create HPP Session" right={<span className="badge badge-be">Back End</span>}>
+              Send the Payments session to the HPP create session endpoint (as payment_session_url). The response includes redirect_url, session_url, and possibly qr_code_url. Use redirect_url to open Klarna’s hosted flow in a popup or new tab; qr_code_url enables device handoff.
+            </StepHeader>
             <div className="mb-4">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">place_order_mode</label>
               <select
@@ -272,11 +267,9 @@ export default function KlarnaHppDemo() {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>4a. Option 1: Launch Checkout</span>
-              <span className="badge badge-fe">Front End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Start the Klarna checkout using the hosted <code>redirect_url</code> returned from HPP create-session. You may distribute this flow via link or QR for device handoff.</p>
+            <StepHeader number={"4a"} title="Option 1: Launch Checkout" right={<span className="badge badge-fe">Front End</span>}>
+              Start the Klarna checkout using the hosted <code>redirect_url</code> returned from HPP create-session. You may distribute this flow via link or QR for device handoff.
+            </StepHeader>
 
             <div className="relative">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -311,16 +304,9 @@ export default function KlarnaHppDemo() {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>4b. Option 2: Distribute HPP via SMS or Email</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Use the HPP <code>distribute session</code> endpoint to send a link via SMS or email. This uses the
-              <code> session_id </code> from the HPP create-session response and calls
-              <code> /hpp/v1/sessions/{'{'}session_id{'}'}/distribution</code>. In Playground, the API will only send emails, but not SMS.
-              See the docs: <a href="https://docs.klarna.com/api/hpp-merchant/#operation/distributeHppSession" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">HPP Distribute Session</a>.
-            </p>
+            <StepHeader number={"4b"} title="Option 2: Distribute HPP via SMS or Email" right={<span className="badge badge-be">Back End</span>}>
+              Use the HPP <code>distribute session</code> endpoint to send a link via SMS or email. This uses the <code>session_id</code> from the HPP create-session response and calls <code>/hpp/v1/sessions/{'{'}session_id{'}'}/distribution</code>. In Playground, the API will only send emails, but not SMS. See the docs: <a href="https://docs.klarna.com/api/hpp-merchant/#operation/distributeHppSession" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">HPP Distribute Session</a>.
+            </StepHeader>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
@@ -341,11 +327,9 @@ export default function KlarnaHppDemo() {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>5. Monitor HPP Status</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Poll the HPP get-session endpoint using <code>session_url</code> (or <code>hpp_session_id</code>) until the session indicates it’s ready/approved. This can also be implemented via a webhook listener. In the HPP create-session request, <code>merchant_urls</code> can control where to send customers on back, cancel, error, failure, and success.</p>
+            <StepHeader number={5} title="Monitor HPP Status" right={<span className="badge badge-be">Back End</span>}>
+              Poll the HPP get-session endpoint using <code>session_url</code> (or <code>hpp_session_id</code>) until the session indicates it’s ready/approved. This can also be implemented via a webhook listener. In the HPP create-session request, <code>merchant_urls</code> can control where to send customers on back, cancel, error, failure, and success.
+            </StepHeader>
             <div className="mt-2 space-y-4">
               {renderKV(hppStatusForwarded, 'External Request')}
               {renderKV(hppStatus, 'External Response')}

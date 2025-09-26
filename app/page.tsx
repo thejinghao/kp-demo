@@ -15,15 +15,15 @@ export default function Home() {
     {
       id: "osm",
       name: "On-Site Messaging (OSM)",
-      description: "Implement via SDK or API",
+      description: "Inform users that Klarna is available. Can be implemented via SDK or API",
       icon: "✉️",
       href: "/apps/osm/vertical",
       tags: ["Pre-Purchase"],
     },
     {
       id: "kec",
-      name: "Klarna Express Checkout",
-      description: "KEC single or multi-step experience",
+      name: "Klarna Express Checkout (KEC)",
+      description: "Add KEC to your PDP, Cart and Checkout page. Single and multi-step experiences supported.",
       icon: "⚡",
       href: "/apps/kec",
       tags: ["Purchase"],
@@ -31,7 +31,7 @@ export default function Home() {
     {
       id: "kp",
       name: "Klarna Payment",
-      description: "Klarna Payment in a standard checkout flow",
+      description: "Klarna Payment in checkout page. Create a session, init the SDK, and render the widget.",
       icon: "🛒",
       href: "/apps/kp",
       tags: ["Purchase"],
@@ -39,7 +39,7 @@ export default function Home() {
     {
       id: "hpp",
       name: "Hosted Payment Page (HPP)",
-      description: "Create and distribute a HPP",
+      description: "Create and distribute a HPP without SDK. Supports QR and email distribution.",
       icon: "🧾",
       href: "/apps/hpp",
       tags: ["Purchase"],
@@ -47,7 +47,7 @@ export default function Home() {
     {
       id: "instore",
       name: "In-Store",
-      description: "Create and distribute QR for in-store",
+      description: "Create and distribute QR for in-store. Supports both dynamic and static QR codes.",
       icon: "🛍️",
       href: "/apps/instore",
       tags: ["Purchase", "In-Store"],
@@ -55,7 +55,7 @@ export default function Home() {
     {
       id: "ct",
       name: "Tokenized Payment",
-      description: "Manage customer tokens or create orders",
+      description: "Create a customer token to save Klarna for future purchases.",
       icon: "🔑",
       href: "/apps/ct",
       tags: ["Post-Purchase"],
@@ -63,7 +63,7 @@ export default function Home() {
     {
       id: "om",
       name: "Order Management",
-      description: "Manage existing orders via OM API",
+      description: "Use the Order Management APIs to capture, cancel, and refund orders.",
       icon: "📦",
       href: "/apps/om",
       tags: ["Post-Purchase"],
@@ -71,7 +71,7 @@ export default function Home() {
     {
       id: "disputes",
       name: "Disputes",
-      description: "List and investigate payment disputes",
+      description: "Use API and webhooks to manage payment disputes.",
       icon: "⚖️",
       href: "/apps/disputes",
       tags: ["Post-Purchase"],
@@ -79,7 +79,7 @@ export default function Home() {
     {
       id: "stripe",
       name: "Stripe Checkout",
-      description: "Stripe-hosted Checkout (all available methods)",
+      description: "Demo of Klarna in a Stripe-hosted Checkout.",
       icon: "💳",
       href: "/apps/stripe",
       tags: ["Purchase"],
@@ -96,7 +96,7 @@ export default function Home() {
   ];
 
   const tagStyle = (tag: string) => {
-    const base = "px-3 py-1 text-sm rounded-full border";
+    const base = "px-2 py-0.5 body-xs rounded-full border";
     switch (tag) {
       case "Pre-Purchase":
         return `${base}`;
@@ -110,7 +110,13 @@ export default function Home() {
   };
 
   const tagBg = (tag: string) => {
-    switch (tag) {
+    // App badges: neutral grey regardless of tag
+    return { backgroundColor: "var(--grey-10)", borderColor: "var(--grey-20)", color: "var(--grey-90)" } as const;
+  };
+
+  // Category badges: colored lozenges per category
+  const categoryBg = (category: string) => {
+    switch (category) {
       case "Pre-Purchase":
         return { backgroundColor: "var(--pink-10)", borderColor: "var(--pink-30)", color: "var(--grey-90)" } as const;
       case "Purchase":
@@ -143,12 +149,12 @@ export default function Home() {
               />
             </div>
             <div className="self-center">
-              <h1 className="text-2xl font-semibold text-[var(--text-default)]">
-                Klarna Playground
-              </h1>
-              <p className="text-sm text-[var(--text-muted)]">
+              <p className="body-m text-[var(--text-muted)]">
                 Integration demos and tools for Klarna Payments
               </p>
+              <h1 className="heading-m text-[var(--text-default)]">
+                Klarna Playground
+              </h1>
             </div>
           </div>
           <div className="shrink-0 self-center">
@@ -177,7 +183,7 @@ export default function Home() {
           return (
             <section key={cat.id} className="mb-10">
               <div className="mb-4 flex items-center gap-3">
-                <span className="text-[var(--text-default)] font-semibold tracking-tight">{cat.label}</span>
+                <span className={tagStyle(cat.label)} style={categoryBg(cat.label)}>{cat.label}</span>
               </div>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {list.map((app) => (
@@ -189,25 +195,23 @@ export default function Home() {
                         border: "1px solid var(--border-default)",
                       }}
                     >
-                      <div className="mb-4 flex items-center">
-                        <span className="mr-3 text-3xl">{app.icon}</span>
-                        <h3 className="text-lg font-semibold text-[var(--text-default)]">
-                          {app.name}
-                        </h3>
-                      </div>
-                      <p className="mb-5 leading-relaxed text-[var(--text-muted)]">
-                        {app.description}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {app.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className={tagStyle(tag)}
-                            style={tagBg(tag)}
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                      <div className="grid gap-3" style={{ gridTemplateColumns: "max-content 1fr" }}>
+                        <div className="text-3xl leading-none">{app.icon}</div>
+                        <div className="space-y-2">
+                          <h3 className="heading-s text-[var(--text-default)]">{app.name}</h3>
+                          <p className="body-s text-[var(--text-muted)]">{app.description}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {app.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className={tagStyle(tag)}
+                                style={tagBg(tag)}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </Link>

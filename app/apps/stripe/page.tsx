@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import AppHeader from '@/app/components/AppHeader'
+import StepHeader from '@/app/components/StepHeader'
 
 export default function StripeDemoPage() {
   const [loading, setLoading] = useState(false)
@@ -32,7 +33,7 @@ export default function StripeDemoPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[var(--color-primary-offwhite)] dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       {/* Header */}
       <AppHeader title="Stripe Checkout Demo" backHref="/" />
 
@@ -40,12 +41,9 @@ export default function StripeDemoPage() {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Step: Create Checkout Session */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>Stripe-Hosted Checkout Page</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            <StepHeader number={1} title="Stripe-Hosted Checkout Page">
               Creates a Stripe-hosted Checkout Session using your configured USD price. Payment methods are determined automatically by Stripe based on your account and customer eligibility.
-            </p>
+            </StepHeader>
 
             <button
               onClick={handleCheckout}

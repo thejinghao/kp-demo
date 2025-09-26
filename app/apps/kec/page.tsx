@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from 'react';
 import AppHeader from '@/app/components/AppHeader';
+import StepHeader from '@/app/components/StepHeader';
 import { getPublicKlarnaClientId } from '@/lib/klarna';
 
 declare global {
@@ -243,7 +244,7 @@ function handleAuthorize(authorize) {
   // Manual load trigger — do not auto-reload on state changes
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       {/* Header */}
       <AppHeader title="Klarna Express Checkout (KEC) Demo" backHref="/" />
 
@@ -253,13 +254,9 @@ function handleAuthorize(authorize) {
           <div className="space-y-6">
             {/* Configuration Section */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-                <span>1. Configure Authorize Options</span>
-                <span className="badge badge-fe">Front End</span>
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <StepHeader number={1} title="Configure Authorize Options" right={<span className="badge badge-fe">Front End</span>}>
                 Configure the options passed to Payments.authorize(). Set auto_finalize=true to complete the order in a single authorize step. Enable collect_shipping_address to have Klarna return the shopper’s address so you can calculate shipping and taxes. These flags influence whether finalize_required appears in the authorize response.
-              </p>
+              </StepHeader>
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Webhook URL for merchant_urls (optional)</label>
@@ -353,13 +350,9 @@ function handleAuthorize(authorize) {
 
             {/* Klarna Button Container (below Configuration) */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-                <span>2. Load Klarna Button and Authorize</span>
-                <span className="badge badge-fe">Front End</span>
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <StepHeader number={2} title="Load Klarna Button and Authorize" right={<span className="badge badge-fe">Front End</span>}>
                 Load the Klarna Buttons SDK and render a button into the container. Clicking the button calls Payments.authorize(options, orderPayload, callback). Klarna handles user authentication/consent and returns approved, finalize_required, and authorization_token in the callback.
-              </p>
+              </StepHeader>
               <div id="klarna-container" ref={containerRef}></div>
             </div>
 
@@ -374,16 +367,9 @@ function handleAuthorize(authorize) {
 
             {/* Payload Options - Always Visible */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-                <span>3. Review and Finalize Authorization</span>
-                <span>
-                  <span className="badge badge-fe mr-1">Front End</span>
-                  <span className="badge badge-be">Back End</span>
-                </span>
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <StepHeader number={3} title="Review and Finalize Authorization" right={<span><span className="badge badge-fe mr-1">Front End</span><span className="badge badge-be">Back End</span></span>}>
                 Use Payments.finalize() when finalize_required is true or when you need to adjust order totals. Select a payload option below and click Place Order to call finalize.
-              </p>
+              </StepHeader>
               {autoFinalize && (
                 <div className="mb-4 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg p-3">
                   Because <code>auto_finalize</code> is set to <strong>true</strong>, authorize completes the order in a single step and does not require calling <code>finalize()</code>.
@@ -440,16 +426,9 @@ function handleAuthorize(authorize) {
             {/* Results Table */}
             {(authorizeResults || finalizeResults) && (
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-                  <span>4. Inspect Results and Copy Tokens</span>
-                  <span>
-                    <span className="badge badge-fe mr-1">Front End</span>
-                    <span className="badge badge-be">Back End</span>
-                  </span>
-                </h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                <StepHeader number={4} title="Inspect Results and Copy Tokens" right={<span><span className="badge badge-fe mr-1">Front End</span><span className="badge badge-be">Back End</span></span>}>
                   Inspect raw fields from authorize()/finalize(). Copy authorization_token for your backend to create/capture the order. client_token is used to initialize client-side SDKs. collected_shipping_address appears when collect_shipping_address=true.
-                </p>
+                </StepHeader>
                 
                 <div className="overflow-x-auto">
                   <table className="w-full">

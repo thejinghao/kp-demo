@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-8">
         <div className="flex items-center justify-between text-sm">
           <p className="text-[var(--text-default)]">Klarna Developer Playground</p>
-          <p className="text-[var(--text-muted)]">Built for integration testing and demos</p>
+          {/* <p className="text-[var(--text-muted)]">Built for integration testing and demos</p> */}
         </div>
       </div>
     </footer>

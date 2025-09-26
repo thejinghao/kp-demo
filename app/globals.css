@@ -96,6 +96,49 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Typography scale */
+:root {
+  /* Heading sizes */
+  --fs-heading-xl: 40px;
+  --fs-heading-l: 32px;
+  --fs-heading-m: 24px;
+  --fs-heading-s: 18px;
+
+  /* Body sizes */
+  --fs-body-l: 20px;
+  --fs-body-m: 16px;
+  --fs-body-s: 14px;
+  --fs-body-xs: 12px;
+
+  /* Label sizes (match body sizes) */
+  --fs-label-l: 20px;
+  --fs-label-m: 16px;
+  --fs-label-s: 14px;
+  --fs-label-xs: 12px;
+
+  --lh-heading: 1.2;
+  --lh-body: 1.6;
+  --lh-label: 1.4;
+}
+
+/* Heading */
+.heading-xl { font-size: var(--fs-heading-xl); line-height: var(--lh-heading); font-weight: 700; letter-spacing: -0.01em; }
+.heading-l  { font-size: var(--fs-heading-l);  line-height: var(--lh-heading); font-weight: 700; letter-spacing: -0.01em; }
+.heading-m  { font-size: var(--fs-heading-m);  line-height: var(--lh-heading); font-weight: 700; letter-spacing: -0.005em; }
+.heading-s  { font-size: var(--fs-heading-s);  line-height: var(--lh-heading); font-weight: 700; letter-spacing: -0.003em; }
+
+/* Body */
+.body-l { font-size: var(--fs-body-l); line-height: var(--lh-body); font-weight: 400; }
+.body-m { font-size: var(--fs-body-m); line-height: var(--lh-body); font-weight: 400; }
+.body-s { font-size: var(--fs-body-s); line-height: var(--lh-body); font-weight: 400; }
+.body-xs { font-size: var(--fs-body-xs); line-height: var(--lh-body); font-weight: 400; }
+
+/* Label */
+.label-l { font-size: var(--fs-label-l); line-height: var(--lh-label); font-weight: 500; }
+.label-m { font-size: var(--fs-label-m); line-height: var(--lh-label); font-weight: 500; }
+.label-s { font-size: var(--fs-label-s); line-height: var(--lh-label); font-weight: 500; }
+.label-xs { font-size: var(--fs-label-xs); line-height: var(--lh-label); font-weight: 500; }
+
 /* Optional dark mode override – keep white default */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -108,7 +151,17 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: var(--fs-body-m);
+  line-height: var(--lh-body);
 }
+
+/* Map semantic headings to the new scale */
+h1 { font-size: var(--fs-heading-l); line-height: var(--lh-heading); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: var(--fs-heading-m); line-height: var(--lh-heading); font-weight: 700; letter-spacing: -0.005em; }
+h3 { font-size: var(--fs-heading-s); line-height: var(--lh-heading); font-weight: 700; letter-spacing: -0.003em; }
+h4 { font-size: var(--fs-body-l); line-height: var(--lh-heading); font-weight: 600; }
+h5 { font-size: var(--fs-body-m); line-height: var(--lh-heading); font-weight: 600; }
+h6 { font-size: var(--fs-body-s); line-height: var(--lh-heading); font-weight: 600; }
 
 /* Global button style */
 .btn {
@@ -118,7 +171,7 @@ body {
   background-color: var(--btn-primary-bg);
   color: var(--btn-primary-fg);
   border: none;
-  border-radius: 9999px;
+  border-radius: 10px;
   padding: 0.75rem 1.5rem;
   font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 1rem;
@@ -172,4 +225,36 @@ body {
 .badge-be {
   background-color: var(--brand-sticky);
   color: var(--brand-black);
+}
+
+/* Step header layout */
+.step {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  align-items: center;
+  gap: 0.75rem; /* ~gap-3 */
+}
+
+.step-number {
+  width: 30px; /* reduced size */
+  height: 30px; /* reduced size */
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--purple-70);
+  color: var(--brand-white);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.step-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.step-body {
+  grid-column: 2;
 }

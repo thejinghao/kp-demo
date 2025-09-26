@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AppHeader from '@/app/components/AppHeader';
+import StepHeader from '@/app/components/StepHeader';
 import { getPublicKlarnaDefaults } from '@/lib/klarna';
 
 const { username: defaultUsername, password: defaultPassword } = getPublicKlarnaDefaults();
@@ -57,18 +58,16 @@ export default function Disputes() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-primary-offwhite)] dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       <AppHeader title="Disputes" backHref="/" />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Step 1: Set API Credentials */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>1. Set API Credentials</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Enter your Klarna API Username and Password.</p>
+            <StepHeader number={1} title="Set API Credentials" right={<span className="badge badge-be">Back End</span>}>
+              Enter your Klarna API Username and Password.
+            </StepHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">API Username</label>
@@ -83,11 +82,9 @@ export default function Disputes() {
 
           {/* Step 2: List Disputes */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>2. List Disputes</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Call Disputes API to list disputes. See docs: <a className="text-blue-600 dark:text-blue-400 hover:underline" href="https://docs.klarna.com/api/disputes-api/disputes-api-3.0.0#tag/Payment-Dispute-API/operation/listDisputes" target="_blank" rel="noreferrer">List Disputes</a>.</p>
+            <StepHeader number={2} title="List Disputes" right={<span className="badge badge-be">Back End</span>}>
+              Call Disputes API to list disputes. See docs: <a className="text-blue-600 dark:text-blue-400 hover:underline" href="https://docs.klarna.com/api/disputes-api/disputes-api-3.0.0#tag/Payment-Dispute-API/operation/listDisputes" target="_blank" rel="noreferrer">List Disputes</a>.
+            </StepHeader>
 
             <div className="flex items-end gap-4 mb-4">
               <button onClick={listDisputes} disabled={isFetching || !apiUsername.trim() || !apiPassword.trim()} className="btn">
@@ -103,13 +100,9 @@ export default function Disputes() {
           
           {/* Step 3: Process Disputes */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>3. Process Disputes</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            <StepHeader number={3} title="Process Disputes" right={<span className="badge badge-be">Back End</span>}>
               Use these endpoints to manage disputes.
-            </p>
+            </StepHeader>
             <ul className="list-disc pl-6 space-y-2 text-sm text-slate-700 dark:text-slate-300">
               <li>
                 <a className="text-blue-600 dark:text-blue-400 hover:underline" href="https://docs.klarna.com/api/disputes-api/disputes-api-3.0.0#tag/Payment-Dispute-API/operation/getDisputeDetails" target="_blank" rel="noreferrer">
