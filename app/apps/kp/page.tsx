@@ -370,7 +370,7 @@ export default function KPPlaceOrderApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-primary-offwhite)] dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       {/* Header */}
       <AppHeader title="Klarna Payment Demo" backHref="/" />
 

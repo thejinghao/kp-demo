@@ -193,7 +193,7 @@ export default function KlarnaHppDemo() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-primary-offwhite)] dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       <AppHeader title="Hosted Payment Page (HPP) Demo" backHref="/" />
 
       <div className="container mx-auto px-4 py-8">

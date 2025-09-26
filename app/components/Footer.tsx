@@ -2,11 +2,15 @@ import React from 'react';
 
 export default function Footer() {
   return (
-    <footer className="text-center pt-[18px] pb-4 bg-black text-[var(--color-primary-offwhite)]">
-      <div className="container mx-auto px-4">
-        <p>
-          Questions? <a href="mailto:jing.hao@klarna.com" className="underline hover:underline text-[var(--color-primary-offwhite)]">Contact Us</a>
-        </p>
+    <footer
+      className=""
+      style={{ backgroundColor: 'var(--bg-container)', borderTop: '1px solid var(--border-default)' }}
+    >
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <div className="flex items-center justify-between text-sm">
+          <p className="text-[var(--text-default)]">Klarna Developer Playground</p>
+          <p className="text-[var(--text-muted)]">Built for integration testing and demos</p>
+        </div>
       </div>
     </footer>
   );
