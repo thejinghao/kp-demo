@@ -1,15 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
 
+type AppItem = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  href: string;
+  tags: string[];
+};
+
 export default function Home() {
-  const apps = [
+  const apps: AppItem[] = [
     {
       id: "osm",
       name: "On-Site Messaging (OSM)",
       description: "Implement via SDK or API",
       icon: "✉️",
       href: "/apps/osm/vertical",
-      tags: ["Pre-Purchase"]
+      tags: ["Pre-Purchase"],
     },
     {
       id: "kec",
@@ -17,7 +26,7 @@ export default function Home() {
       description: "KEC single or multi-step experience",
       icon: "⚡",
       href: "/apps/kec",
-      tags: ["Purchase"]
+      tags: ["Purchase"],
     },
     {
       id: "kp",
@@ -25,7 +34,7 @@ export default function Home() {
       description: "Klarna Payment in a standard checkout flow",
       icon: "🛒",
       href: "/apps/kp",
-      tags: ["Purchase"]
+      tags: ["Purchase"],
     },
     {
       id: "hpp",
@@ -33,7 +42,7 @@ export default function Home() {
       description: "Create and distribute a HPP",
       icon: "🧾",
       href: "/apps/hpp",
-      tags: ["Purchase"]
+      tags: ["Purchase"],
     },
     {
       id: "instore",
@@ -41,7 +50,7 @@ export default function Home() {
       description: "Create and distribute QR for in-store",
       icon: "🛍️",
       href: "/apps/instore",
-      tags: ["Purchase", "In-Store"]
+      tags: ["Purchase", "In-Store"],
     },
     {
       id: "ct",
@@ -49,7 +58,7 @@ export default function Home() {
       description: "Manage customer tokens or create orders",
       icon: "🔑",
       href: "/apps/ct",
-      tags: ["Purchase", "Post-Purchase"]
+      tags: ["Post-Purchase"],
     },
     {
       id: "om",
@@ -57,7 +66,7 @@ export default function Home() {
       description: "Manage existing orders via OM API",
       icon: "📦",
       href: "/apps/om",
-      tags: ["Post-Purchase"]
+      tags: ["Post-Purchase"],
     },
     {
       id: "disputes",
@@ -65,88 +74,161 @@ export default function Home() {
       description: "List and investigate payment disputes",
       icon: "⚖️",
       href: "/apps/disputes",
-      tags: ["Post-Purchase"]
+      tags: ["Post-Purchase"],
     },
     {
       id: "stripe",
       name: "Stripe Checkout",
-      description: "Stripe-hosted Checkout Page",
+      description: "Stripe-hosted Checkout (all available methods)",
       icon: "💳",
       href: "/apps/stripe",
-      tags: ["Purchase"]
+      tags: ["Purchase"],
     },
-
-    // Add more apps here as you create them
   ];
+
+  const byCategory = (category: string) =>
+    apps.filter((a) => a.tags.includes(category));
+
+  const categories: { id: string; label: string }[] = [
+    { id: "Pre-Purchase", label: "Pre-Purchase" },
+    { id: "Purchase", label: "Purchase" },
+    { id: "Post-Purchase", label: "Post-Purchase" },
+  ];
+
+  const tagStyle = (tag: string) => {
+    const base = "px-3 py-1 text-sm rounded-full border";
+    switch (tag) {
+      case "Pre-Purchase":
+        return `${base}`;
+      case "Purchase":
+        return `${base}`;
+      case "Post-Purchase":
+        return `${base}`;
+      default:
+        return `${base}`;
+    }
+  };
+
+  const tagBg = (tag: string) => {
+    switch (tag) {
+      case "Pre-Purchase":
+        return { backgroundColor: "var(--pink-10)", borderColor: "var(--pink-30)", color: "var(--grey-90)" } as const;
+      case "Purchase":
+        return { backgroundColor: "var(--green-10)", borderColor: "var(--green-30)", color: "var(--grey-90)" } as const;
+      case "Post-Purchase":
+        return { backgroundColor: "var(--purple-10)", borderColor: "var(--purple-30)", color: "var(--grey-90)" } as const;
+      default:
+        return { backgroundColor: "var(--grey-10)", borderColor: "var(--grey-20)", color: "var(--grey-90)" } as const;
+    }
+  };
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-16">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <div className="mb-4">
-            <Image
-              src="/klarna-badge.png"
-              alt="Klarna Playground"
-              width={169}
-              height={72}
-              priority
-              className="mx-auto h-auto w-[110px] md:w-[150px] lg:w-[170px]"
-            />
+      {/* Full-width header */}
+      <header
+        className="bg-[var(--bg-page)]"
+        style={{ borderBottom: "1px solid rgba(229,231,235,0.5)" }}
+      >
+        <div className="mx-auto max-w-7xl px-4 py-5 flex items-stretch justify-between gap-6">
+          <div className="flex items-stretch gap-4">
+            <div className="self-stretch flex items-center">
+              <Image
+                src="/klarna-badge.png"
+                alt="Klarna"
+                width={169}
+                height={72}
+                className="h-full w-auto"
+                style={{ maxHeight: 56 }}
+                priority
+              />
+            </div>
+            <div className="self-center">
+              <h1 className="text-2xl font-semibold text-[var(--text-default)]">
+                Klarna Playground
+              </h1>
+              <p className="text-sm text-[var(--text-muted)]">
+                Integration demos and tools for Klarna Payments
+              </p>
+            </div>
           </div>
-          <p className="text-xl text-[var(--color-primary-offwhite)] max-w-2xl mx-auto">
-            A collection of demos and tools for integrating Klarna Payments. 
-          </p>
-          <p className="text-slate-200 mt-2 italic">Default MID: N055491</p>
-        </div>
-
-        {/* Apps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {apps.map((app) => (
-            <Link
-              key={app.id}
-              href={app.href}
-              className="group block"
+          <div className="shrink-0 self-center">
+            <div
+              className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs"
+              style={{
+                backgroundColor: "var(--bg-surface)",
+                borderColor: "var(--border-default)",
+                color: "var(--text-default)",
+              }}
             >
-              <div className="rounded-2xl p-6 border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl hover:bg-white/15 hover:border-white/30 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                <div className="flex items-center mb-4">
-                  <span className="text-3xl mr-3">{app.icon}</span>
-                  <h3 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors">
-                    {app.name}
-                  </h3>
-                </div>
-                <p className="text-slate-300 mb-4 leading-relaxed">
-                  {app.description}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {app.tags.map((tag: string) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 bg-white/10 border border-white/20 text-slate-200 text-sm rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </Link>
-          ))}
+              <span className="opacity-80">MID:</span>
+              <span className="font-semibold">N055491</span>
+            </div>
+          </div>
         </div>
+      </header>
 
-        {/* Empty State */}
+      <div className="mx-auto max-w-7xl px-4 py-12">
+
+        
+
+        {categories.map((cat) => {
+          const list = byCategory(cat.id);
+          if (list.length === 0) return null;
+          return (
+            <section key={cat.id} className="mb-10">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="text-[var(--text-default)] font-semibold tracking-tight">{cat.label}</span>
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {list.map((app) => (
+                  <Link key={app.id} href={app.href} className="group block">
+                    <div
+                      className="rounded-2xl p-6 shadow-sm transition-all duration-300 group-hover:-translate-y-[2px] hover:shadow-md"
+                      style={{
+                        backgroundColor: "var(--bg-container)",
+                        border: "1px solid var(--border-default)",
+                      }}
+                    >
+                      <div className="mb-4 flex items-center">
+                        <span className="mr-3 text-3xl">{app.icon}</span>
+                        <h3 className="text-lg font-semibold text-[var(--text-default)]">
+                          {app.name}
+                        </h3>
+                      </div>
+                      <p className="mb-5 leading-relaxed text-[var(--text-muted)]">
+                        {app.description}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {app.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className={tagStyle(tag)}
+                            style={tagBg(tag)}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+
+        {/* Empty state */}
         {apps.length === 0 && (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">🚀</div>
-            <h3 className="text-2xl font-semibold text-slate-200 mb-2">
+          <div className="py-16 text-center">
+            <div className="mb-4 text-6xl">🚀</div>
+            <h3 className="mb-2 text-2xl font-semibold text-[var(--color-primary-white)]">
               No apps yet
             </h3>
-            <p className="text-slate-400">
+            <p className="text-[var(--text-muted)]">
               Start building your first app to see it here
             </p>
           </div>
         )}
-
-        
       </div>
     </div>
   );
