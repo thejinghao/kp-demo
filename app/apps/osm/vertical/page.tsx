@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AppHeader from '@/app/components/AppHeader';
+import StepHeader from '@/app/components/StepHeader';
 import KlarnaPlacement from '../../../components/KlarnaPlacement';
 import { getPublicKlarnaClientId } from '@/lib/klarna';
 
@@ -89,7 +90,7 @@ export default function OSMAppVertical() {
   const exampleUrl = `{base_url}/messaging/v4?locale=${selectedLocale}&placement_key=top-strip-promotion-auto-size&purchase_amount=${examplePurchaseAmountMinor}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       {/* Header */}
       <AppHeader title="On-Site Messaging Demo" backHref="/" />
 

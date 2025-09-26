@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AppHeader from '@/app/components/AppHeader';
+import StepHeader from '@/app/components/StepHeader';
 
 const defaultUsername = process.env.NEXT_PUBLIC_KLARNA_API_USERNAME || '';
 const defaultPassword = process.env.NEXT_PUBLIC_KLARNA_API_PASSWORD || '';
@@ -144,7 +145,7 @@ export default function InStoreApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-primary-offwhite)] dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       {/* Header */}
       <AppHeader title="In-Store Payments Demo" backHref="/" />
 
@@ -152,13 +153,9 @@ export default function InStoreApp() {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Step 1: Create In-Store Session */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>1. Create In-Store Session</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+            <StepHeader number={1} title="Create In-Store Session" right={<span className="badge badge-be">Back End</span>}>
               Creates a Klarna Payments session with acquiring_channel set to in_store. The response contains a distribution result_url used in the next step.
-            </p>
+            </StepHeader>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
@@ -209,11 +206,9 @@ export default function InStoreApp() {
 
           {/* Step 2: Retrieve QR code (POS/Kiosk style) */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2 flex items-center justify-between gap-2">
-              <span>2. Retrieve QR Code</span>
-              <span className="badge badge-fe">Front End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">Displays a QR code for the shopper to scan on their device.</p>
+            <StepHeader number={2} title="Retrieve QR Code" right={<span className="badge badge-fe">Front End</span>}>
+              Displays a QR code for the shopper to scan on their device.
+            </StepHeader>
 
             {qrDataUrl ? (
               <div className="flex flex-col items-center justify-center">

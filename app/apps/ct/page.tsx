@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AppHeader from '@/app/components/AppHeader';
+import StepHeader from '@/app/components/StepHeader';
 import { getPublicKlarnaDefaults } from '@/lib/klarna';
 
 const { username: defaultUsername, password: defaultPassword } = getPublicKlarnaDefaults();
@@ -101,18 +102,16 @@ export default function CustomerTokenOrderApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-primary-offwhite)] dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       <AppHeader title="Klarna Customer Token Demo" backHref="/" />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Step 1: Configuration */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>1. Configuration</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Provide your Klarna API credentials and default customer token.</p>
+            <StepHeader number={1} title="Configuration" right={<span className="badge badge-be">Back End</span>}>
+              Provide your Klarna API credentials and default customer token.
+            </StepHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">API Username</label>
@@ -146,11 +145,9 @@ export default function CustomerTokenOrderApp() {
 
           {/* Step 2: Read Customer Token */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>2. Read Customer Token</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Read details for the customer token.</p>
+            <StepHeader number={2} title="Read Customer Token" right={<span className="badge badge-be">Back End</span>}>
+              Read details for the customer token.
+            </StepHeader>
 
             <div className="flex items-end gap-4 mb-4">
               <button
@@ -182,11 +179,9 @@ export default function CustomerTokenOrderApp() {
 
           {/* Step 3: Create Order with Customer Token */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>3. Create Order with Customer Token</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Use the configured customer token to place an order via the Customer Token API. The product is a digital subscription with a 6-month interval.</p>
+            <StepHeader number={3} title="Create Order with Customer Token" right={<span className="badge badge-be">Back End</span>}>
+              Use the configured customer token to place an order via the Customer Token API. The product is a digital subscription with a 6-month interval.
+            </StepHeader>
 
             <div className="flex items-end gap-4 mb-4">
               <button

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AppHeader from '@/app/components/AppHeader';
+import StepHeader from '@/app/components/StepHeader';
 import { getPublicKlarnaDefaults } from '@/lib/klarna';
 
 declare global {
@@ -41,6 +42,10 @@ export default function KPPlaceOrderApp() {
   const [showResponse, setShowResponse] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authorizationToken, setAuthorizationToken] = useState('');
+  const [autoFinalize, setAutoFinalize] = useState(true);
+  const [isFinalizing, setIsFinalizing] = useState(false);
+  const [finalizeResponse, setFinalizeResponse] = useState<any>(null);
+  const [showFinalizeResponse, setShowFinalizeResponse] = useState(false);
 
   // New state for Create Session step
   const [kpUsername, setKpUsername] = useState(defaultUsername);
@@ -171,8 +176,7 @@ export default function KPPlaceOrderApp() {
       // Load Klarna widget
       window.Klarna.Payments.load({
         container: '#klarna-container',
-        instance_id: 'klarna-container-instance',
-        payment_method_categories: ['klarna']
+        payment_method_category: 'klarna'
       }, (res: any) => {
         console.debug('Klarna widget loaded:', res);
       });
@@ -203,11 +207,12 @@ export default function KPPlaceOrderApp() {
         ...(authorizePayload && typeof authorizePayload === 'object' ? authorizePayload : {}),
         merchant_reference1: (authorizePayload as any)?.merchant_reference1 ?? 'demo-merchant-ref-1',
       };
-      setLastAuthorizePayload(payloadForAuthorize);
+      // Save a deep-cloned snapshot so finalize() can reuse the exact same payload
+      setLastAuthorizePayload(JSON.parse(JSON.stringify(payloadForAuthorize)));
 
       window.Klarna.Payments.authorize({
-        instance_id: 'klarna-container-instance',
-        payment_method_categories: ['klarna']
+        payment_method_category: 'klarna',
+        ...(autoFinalize === false ? { auto_finalize: false } : {})
       }, payloadForAuthorize, (res: any) => {
         console.debug('Order authorized:', res);
         setResponseData(res);
@@ -369,6 +374,40 @@ export default function KPPlaceOrderApp() {
     }
   };
 
+  const finalizeOrder = async () => {
+    if (!isSDKInitialized) {
+      alert('Please initialize the SDK first.');
+      return;
+    }
+
+    setIsFinalizing(true);
+    try {
+      // Use the exact same payload used for authorize() to avoid widget popups
+      if (!lastAuthorizePayload) {
+        alert('Please run authorize() first. finalize() requires the identical payload.');
+        setIsFinalizing(false);
+        return;
+      }
+      const payloadForFinalize = lastAuthorizePayload;
+
+      window.Klarna.Payments.finalize({
+        payment_method_category: 'klarna'
+      }, payloadForFinalize, (res: any) => {
+        console.debug('Order finalized:', res);
+        setFinalizeResponse(res);
+        setShowFinalizeResponse(true);
+        if (res && typeof res.authorization_token === 'string') {
+          setAuthorizationToken(res.authorization_token);
+        }
+        setIsFinalizing(false);
+      });
+    } catch (error) {
+      console.error('Error finalizing order:', error);
+      alert('Error finalizing order. Please try again.');
+      setIsFinalizing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -378,13 +417,9 @@ export default function KPPlaceOrderApp() {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Step 1: Create Payments Session */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>1. Create Payments Session</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            <StepHeader number={1} title="Create Payments Session" right={<span className="badge badge-be">Back End</span>}>
               Call the Klarna Payments Create Session API with your order details. From the response, store the client_token. You will use client_token on the frontend to initialize the Klarna SDK and render the payment widget.
-            </p>
+            </StepHeader>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
@@ -397,7 +432,7 @@ export default function KPPlaceOrderApp() {
                 />
               </div>
               <div>
-                <label className="block text_sm font-medium text-slate-700 dark:text-slate-300 mb-2">API Password</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">API Password</label>
                 <input
                   value={kpPassword}
                   onChange={(e) => setKpPassword(e.target.value)}
@@ -419,6 +454,21 @@ export default function KPPlaceOrderApp() {
                 <option value="buy_and_default_tokenize">buy_and_default_tokenize</option>
               </select>
             </div>
+
+          <div className="mb-4 flex items-center justify-between gap-4 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+            <div>
+              <div className="text-sm font-medium text-slate-700 dark:text-slate-300">auto_finalize</div>
+              <div className="text-xs text-slate-600 dark:text-slate-400">If false, authorize() will require a finalize() step to get authorization_token.</div>
+            </div>
+            <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={autoFinalize}
+                onChange={(e) => setAutoFinalize(e.target.checked)}
+              />
+              <span className="text-sm text-slate-700 dark:text-slate-300">{autoFinalize ? 'true' : 'false'}</span>
+            </label>
+          </div>
 
             <button
               onClick={createSession}
@@ -448,13 +498,9 @@ export default function KPPlaceOrderApp() {
 
           {/* Step 2: Initialize SDK with Client Token */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify-between gap-2">
-              <span>2. Initialize SDK with Client Token</span>
-              <span className="badge badge-fe">Front End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Use the client_token from the session response and initialize the SDK via Payments.init(&#123; client_token &#125;). This binds your session to the current browser and prepares the widget for rendering.
-            </p>
+            <StepHeader number={2} title="Initialize SDK with Client Token" right={<span className="badge badge-fe">Front End</span>}>
+              Use the client_token from the session response and initialize the SDK via Payments.init({ '{' } client_token { '}' }). This binds your session to the current browser and prepares the widget for rendering.
+            </StepHeader>
             
             <div className="space-y-4">
               <div>
@@ -484,13 +530,9 @@ export default function KPPlaceOrderApp() {
 
           {/* Step 3: Render Klarna Widget & Authorize Payment */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center justify_between gap-2">
-              <span>3. Render Klarna Widget & Authorize Payment</span>
-              <span className="badge badge-fe">Front End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              After init, render the Klarna widget using Payments.load(&#123; container, payment_method_categories &#125;). When the shopper is ready, call Payments.authorize(options, <strong>payload</strong>, callback) to create an authorization. Use the returned authorization_token in the next step to create the order on your server.
-            </p>
+            <StepHeader number={3} title="Render Klarna Widget & Authorize Payment" right={<span className="badge badge-fe">Front End</span>}>
+              After init, render the Klarna widget using Payments.load({ '{' } container, payment_method_category: 'klarna' { '}' }). When the shopper is ready, call Payments.authorize(options, <strong>payload</strong>, callback) to create an authorization. Use the returned authorization_token in the next step to create the order on your server.
+            </StepHeader>
 
             {/* Collapsible editor for authorize() request body */}
             <details className="mb-4 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -584,30 +626,37 @@ export default function KPPlaceOrderApp() {
             )}
           </div>
 
-          {/* Step 4: Create Customer Token (Back End) */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2 flex items-center justify-between gap-2">
-              <span>4. Create Customer Token</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Optional: only applicable when the session intent in Step 1 supports tokenization (
-              <code>buy_and_tokenize</code> or <code>buy_and_default_tokenize</code>). Use the
-              authorization_token from authorize() to create a customer token for future charges. See
-              Klarna’s Payment scenarios and intent in the
-              {' '}
-              <a
-                href="https://docs.klarna.com/payments/web-payments/integrate-with-klarna-payments/integrate-via-sdk/step-1-initiate-a-payment/?q=buy_and_default_tokenize#payment-scenarios-and-intent"
-                target="_blank"
-                rel="noreferrer"
-                className="underline"
-              >
-                docs
-              </a>
-              .
-            </p>
+          {/* Step 4: Finalize Order (Front End) */}
+          <div className={`bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 ${autoFinalize ? 'opacity-60 pointer-events-none' : ''}`}>
+            <StepHeader number={4} title="Finalize Order" right={<span className="badge badge-fe">Front End</span>}>
+              Call Payments.finalize(options, <strong>same payload</strong>, callback) to complete authorization when using multistep checkout with auto_finalize set to false. See finalize docs. <a href="https://docs.klarna.com/payments/web-payments/integrate-with-klarna-payments/other-actions/finalize-an-authorization/" target="_blank" rel="noreferrer" className="underline">reference</a>.
+            </StepHeader>
 
-            <div className="flex items_end gap-4 mb-4">
+            <button
+              onClick={finalizeOrder}
+              disabled={autoFinalize || isFinalizing || !isSDKInitialized || !isAuthorizePayloadValid}
+              className="btn"
+            >
+              {isFinalizing ? 'Finalizing...' : 'Place Order'}
+            </button>
+
+            {showFinalizeResponse && (
+              <div className="mt-4">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Finalize Response</h3>
+                <pre className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 rounded-lg overflow-auto text-sm">
+                  {finalizeResponse ? JSON.stringify(finalizeResponse, null, 2) : 'No response available.'}
+                </pre>
+              </div>
+            )}
+          </div>
+
+          {/* Step 5: Create Customer Token (Back End) */}
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <StepHeader number={5} title="Create Customer Token" right={<span className="badge badge-be">Back End</span>}>
+              Optional: only applicable when the session intent in Step 1 supports tokenization (<code>buy_and_tokenize</code> or <code>buy_and_default_tokenize</code>). Use the authorization_token from authorize() to create a customer token for future charges. See Klarna’s Payment scenarios and intent in the <a href="https://docs.klarna.com/payments/web-payments/integrate-with-klarna-payments/integrate-via-sdk/step-1-initiate-a-payment/?q=buy_and_default_tokenize#payment-scenarios-and-intent" target="_blank" rel="noreferrer" className="underline">docs</a>.
+            </StepHeader>
+
+            <div className="flex items-end gap-4 mb-4">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Authorization Token</label>
                 <input
@@ -644,15 +693,11 @@ export default function KPPlaceOrderApp() {
             )}
           </div>
 
-          {/* Step 5: Create Order (Back End) */}
+          {/* Step 6: Create Order (Back End) */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2 flex items-center justify-between gap-2">
-              <span>5. Create Order</span>
-              <span className="badge badge-be">Back End</span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            <StepHeader number={6} title="Create Order" right={<span className="badge badge-be">Back End</span>}>
               Use the authorization_token returned from authorize() as the path parameter and send the same payload used in authorize(). This finalizes the purchase and creates the order in Klarna.
-            </p>
+            </StepHeader>
 
             <div className="flex items-end gap-4 mb-4">
               <div className="flex-1">
@@ -661,7 +706,7 @@ export default function KPPlaceOrderApp() {
                   value={authorizationToken}
                   onChange={(e) => setAuthorizationToken(e.target.value)}
                   placeholder="Will be auto-filled after authorize()"
-                  className="w_full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                 />
               </div>
               <button
