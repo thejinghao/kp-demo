@@ -1,22 +1,85 @@
 @import "tailwindcss";
 
+/*
+  Brand + UI color system
+  - Greyscale, semantic text/border/bg, and component tokens
+  - Based on the provided design palettes
+*/
+
 :root {
-  --background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--color-secondary-eggplant) 90%, white 10%) 0%,
-    color-mix(in srgb, var(--color-secondary-balloon) 90%, black 10%) 100%
-  );
-  --foreground: #ededed;
+  /* Greyscale */
+  --grey-0: #ffffff;
+  --grey-5: #f7f7f7;
+  --grey-10: #efefef;
+  --grey-20: #e2e2e7;
+  --grey-30: #cacbca;
+  --grey-40: #b9bbc0;
+  --grey-50: #979db6;
+  --grey-60: #7f85af;
+  --grey-70: #50545f;
+  --grey-80: #272a54;
+  --grey-90: #18192a;
+  --grey-95: #0b051d;
+  --grey-100: #000000;
 
   /* Brand palette */
-  --color-primary-black: #0B051D;
-  --color-primary-white: #FFFFFF;
-  --color-primary-offwhite: #F9F8F5;
+  --brand-black: #0b051d;
+  --brand-white: #ffffff;
+  --brand-offwhite: #f9f8f5;
+  --brand-eggplant: #2c2242; /* dark purple */
+  --brand-balloon: #b798be;  /* pink/purple */
+  --brand-herring: #e4e3df;  /* neutral */
+  --brand-sticky: #e6ffa9;   /* lime */
 
-  --color-secondary-eggplant: #2C2242;
-  --color-secondary-balloon: #B798BE;
-  --color-secondary-herring: #E4E3DF;
-  --color-secondary-sticky: #E6FFA9;
+  /* Role palettes (subset to what we use) */
+  --red-50: #ef4759;   /* danger */
+  --green-10: #e6f6ec;
+  --green-30: #a9dfbf;
+  --green-60: #2ca35d; /* positive */
+  --yellow-60: #f2bd40;/* warning */
+  --blue-60: #2d68bb;  /* brand accent */
+  --pink-10: #fde2ef;
+  --pink-30: #f7b3d2;
+  --pink-70: #ac3b85;
+  --purple-10: #eae7ff;
+  --purple-30: #c8bfff;
+  --purple-70: #5b43d1;
+
+  /* Semantic tokens – light surface UI */
+  --bg-page: #ffffff;
+  --bg-container: #ffffff;
+  --bg-surface: #f7f7f7; /* subtle grey for chips/accents */
+  --bg-inverse: var(--brand-black);
+  --bg-accent: var(--brand-balloon);
+
+  --text-default: #0f0f14; /* near-black */
+  --text-inverse: #ffffff;
+  --text-muted: #6b7280; /* slate-500 */
+  --text-accent: var(--brand-balloon);
+
+  --border-default: #e5e7eb; /* slate-200 */
+  --border-active: #d1d5db; /* slate-300 */
+  --border-brand: var(--brand-balloon);
+
+  --btn-primary-bg: var(--brand-black);
+  --btn-primary-fg: var(--brand-white);
+  --btn-secondary-bg: var(--grey-20);
+  --btn-secondary-fg: var(--brand-black);
+  --btn-brand-bg: var(--brand-balloon);
+  --btn-brand-fg: var(--brand-black);
+
+  --overlay-hover: color-mix(in srgb, var(--brand-black) 8%, transparent 92%);
+
+  /* Expose tokens to utility theme */
+  --background: var(--bg-page);
+  --foreground: var(--text-default);
+  --color-primary-black: var(--brand-black);
+  --color-primary-white: var(--brand-white);
+  --color-primary-offwhite: var(--brand-offwhite);
+  --color-secondary-eggplant: var(--brand-eggplant);
+  --color-secondary-balloon: var(--brand-balloon);
+  --color-secondary-herring: var(--brand-herring);
+  --color-secondary-sticky: var(--brand-sticky);
 }
 
 @theme inline {
@@ -29,17 +92,14 @@
   --color-secondary-balloon: var(--color-secondary-balloon);
   --color-secondary-herring: var(--color-secondary-herring);
   --color-secondary-sticky: var(--color-secondary-sticky);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter, var(--font-geist-sans));
   --font-mono: var(--font-geist-mono);
 }
 
+/* Optional dark mode override – keep white default */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--color-secondary-eggplant) 85%, white 15%) 0%,
-      color-mix(in srgb, var(--color-secondary-balloon) 80%, white 20%) 100%
-    );
+    --background: #0b051d;
     --foreground: #ededed;
   }
 }
@@ -47,7 +107,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
 
 /* Global button style */
@@ -55,12 +115,12 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: rgb(11, 5, 29);
-  color: #ffffff;
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-fg);
   border: none;
   border-radius: 9999px;
   padding: 0.75rem 1.5rem;
-  font-family: Roboto, Arial, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 1rem;
   font-weight: 500;
   line-height: 105%;
@@ -105,11 +165,11 @@ body {
 }
 
 .badge-fe {
-  background-color: var(--color-secondary-balloon);
-  color: var(--color-primary-black);
+  background-color: var(--brand-balloon);
+  color: var(--brand-black);
 }
 
 .badge-be {
-  background-color: var(--color-secondary-sticky);
-  color: var(--color-primary-black);
+  background-color: var(--brand-sticky);
+  color: var(--brand-black);
 }
