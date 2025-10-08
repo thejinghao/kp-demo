@@ -7,6 +7,7 @@
 */
 
 :root {
+  color-scheme: light;
   /* Greyscale */
   --grey-0: #ffffff;
   --grey-5: #f7f7f7;
@@ -139,13 +140,7 @@
 .label-s { font-size: var(--fs-label-s); line-height: var(--lh-label); font-weight: 500; }
 .label-xs { font-size: var(--fs-label-xs); line-height: var(--lh-label); font-weight: 500; }
 
-/* Optional dark mode override – keep white default */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b051d;
-    --foreground: #ededed;
-  }
-}
+/* Dark mode disabled: always use light variables */
 
 body {
   background: var(--background);
