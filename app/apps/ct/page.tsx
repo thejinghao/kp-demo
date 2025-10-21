@@ -10,7 +10,7 @@ const { username: defaultUsername, password: defaultPassword } = getPublicKlarna
 export default function CustomerTokenOrderApp() {
   const [kpUsername, setKpUsername] = useState(defaultUsername);
   const [kpPassword, setKpPassword] = useState(defaultPassword);
-  const [customerToken, setCustomerToken] = useState('9f7159b2-dfa2-47ba-9212-3e0a821c86ae');
+  const [customerToken, setCustomerToken] = useState('cc9cea78-531d-4a06-b8bf-0b5852f7f0aa');
   const [isReadingToken, setIsReadingToken] = useState(false);
   const [readTokenCall, setReadTokenCall] = useState<{ request?: any; response?: any } | null>(null);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
