@@ -241,14 +241,9 @@ export default function InStoreApp() {
 
           {/* Step 3: Monitor Session Status */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2 flex items-center justify-between gap-2">
-              <span>3. Monitor Session Status</span>
-              <span>
-                <span className="badge badge-fe mr-1">Front End</span>
-                <span className="badge badge-be">Back End</span>
-              </span>
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">Poll the distribution result_url for updates. When status changes, continue your order flow on the server.</p>
+            <StepHeader number={3} title="Monitor Session Status" right={<><span className="badge badge-fe mr-1">Front End</span><span className="badge badge-be">Back End</span></>}>
+              Poll the distribution result_url for updates. When status changes, continue your order flow on the server.
+            </StepHeader>
 
             <div className="flex gap-4 mb-4 items-center">
               <button

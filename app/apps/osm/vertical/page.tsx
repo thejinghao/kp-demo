@@ -4,12 +4,16 @@ import { useEffect, useState } from 'react';
 import AppHeader from '@/app/components/AppHeader';
 import StepHeader from '@/app/components/StepHeader';
 import KlarnaPlacement from '../../../components/KlarnaPlacement';
-import { getPublicKlarnaClientId } from '@/lib/klarna';
+import { getPublicKlarnaClientId, buildBasicAuthFromPublicDefaults } from '@/lib/klarna';
 
 export default function OSMAppVertical() {
   const [selectedPrice, setSelectedPrice] = useState(1);
   const [selectedLocale, setSelectedLocale] = useState('en-US');
   const [customAmount, setCustomAmount] = useState('');
+  const [selectedPlacementKey, setSelectedPlacementKey] = useState('credit-promotion-badge');
+  const [apiResponse, setApiResponse] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const dataLayer = [
     { product: { price: 20, name: "Example product 1" } },
@@ -87,7 +91,46 @@ export default function OSMAppVertical() {
   const examplePurchaseAmountMinor = selectedPrice === -1
     ? (isNaN(parseFloat(customAmount)) ? 0 : Math.round(parseFloat(customAmount) * 100))
     : dataLayer[selectedPrice].product.price * 100;
-  const exampleUrl = `{base_url}/messaging/v4?locale=${selectedLocale}&placement_key=top-strip-promotion-auto-size&purchase_amount=${examplePurchaseAmountMinor}`;
+  const exampleUrl = `{base_url}/messaging/v4?locale=${selectedLocale}&placement_key=${selectedPlacementKey}&purchase_amount=${examplePurchaseAmountMinor}`;
+
+  const handleTestApiCall = async () => {
+    setLoading(true);
+    setError(null);
+    setApiResponse(null);
+
+    try {
+      const auth = buildBasicAuthFromPublicDefaults();
+      if (!auth) {
+        throw new Error('Missing Klarna credentials');
+      }
+
+      const params = new URLSearchParams({
+        locale: selectedLocale,
+        placement_key: selectedPlacementKey,
+        purchase_amount: examplePurchaseAmountMinor.toString(),
+      });
+
+      const response = await fetch(`/api/klarna/osm?${params.toString()}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': auth,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'API call failed');
+      }
+
+      setApiResponse(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -335,6 +378,48 @@ export default function OSMAppVertical() {
             </p>
 
             <div className="space-y-4">
+              {/* Placement Key Selector */}
+              <div>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+                  Placement Key
+                </p>
+                <div className="space-y-2">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="placement_key"
+                      value="credit-promotion-badge"
+                      checked={selectedPlacementKey === 'credit-promotion-badge'}
+                      onChange={(e) => setSelectedPlacementKey(e.target.value)}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">credit-promotion-badge</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="placement_key"
+                      value="top-strip-promotion-badge"
+                      checked={selectedPlacementKey === 'top-strip-promotion-badge'}
+                      onChange={(e) => setSelectedPlacementKey(e.target.value)}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">top-strip-promotion-badge</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Test API Call Button */}
+              <div>
+                <button
+                  onClick={handleTestApiCall}
+                  disabled={loading}
+                  className="btn bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Loading...' : 'Test API Call'}
+                </button>
+              </div>
+
               <div>
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
                   Sample GET Request
@@ -347,7 +432,44 @@ export default function OSMAppVertical() {
                 </p>
               </div>
 
-              <div>
+              {/* Error Display */}
+              {error && (
+                <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
+                  <p className="text-sm text-red-800 dark:text-red-200 font-medium">Error:</p>
+                  <p className="text-xs text-red-700 dark:text-red-300 mt-1">{error}</p>
+                </div>
+              )}
+
+              {/* API Response Display */}
+              {apiResponse && (
+                <div>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+                    Live API Response
+                  </p>
+                  
+                  {/* Request Details */}
+                  <div className="mb-4">
+                    <p className="text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Request:</p>
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-3 overflow-x-auto">
+                      <pre className="text-xs text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words">
+                        <code>{JSON.stringify(apiResponse.forwarded_request, null, 2)}</code>
+                      </pre>
+                    </div>
+                  </div>
+
+                  {/* Response Data */}
+                  <div>
+                    <p className="text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Response:</p>
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-3 overflow-x-auto">
+                      <pre className="text-xs text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words">
+                        <code>{JSON.stringify(apiResponse.klarna_response, null, 2)}</code>
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!apiResponse && <div>
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
                   Sample Response
                 </p>
@@ -377,7 +499,7 @@ export default function OSMAppVertical() {
   "impression_url": "http://evt-na.playground.klarnaservices.com/v1/osm-client-script/1.0.0/bb?d=aggregated-messaging&g=07965ee0-1dbb-586c-970f-2ec37b31a5fb&k=96fd0f91-aba1-49f3-bd9c-f366132e56f7&j=78c60aa1-58cc-4232-97f3-c72369176538&pt=payment_methods&pm=13&ct=gkd&h=EN&i=US&sid=2nrMOcbdDd0zBqfdiY2X5&timestamp=1757436435831&iv=osm-api"
 }`}</code></pre>
                 </div>
-              </div>
+              </div>}
             </div>
           </section>
         </main>
